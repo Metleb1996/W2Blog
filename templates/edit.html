@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title_content %}
+W2Blog
+{% endblock %}
+
+{% block main_content %}
+
+<main>
+    <section id="editarticle">
+        <div class="container">
+            <div class="row mt-5 pt-5">
+                <h3 class="mb-5 text-center">Create Article</h3>
+                <div class="col-md-9">
+                    <form class="mb-4">
+                        <div class="form-outline mb-4">
+                            <input type="text" id="aTitle" class="form-control" />
+                            <label class="form-label" for="aTitle">Title</label>
+                        </div>
+                        <div class="form-outline mb-4">
+                            <input type="text" id="aSubTitle" class="form-control" />
+                            <label class="form-label" for="aSubtitle">Subtitle</label>
+                        </div>
+                        <div class="form-outline mb-4">
+                            <input type="file" class="form-control" id="customFile" style="opacity: 0.2;  z-index: -1;"/>
+                            <label class="form-label" for="customFile" style="cursor: pointer;">Hero Image</label>
+                        </div>
+                        <div class="form-outline mb-4">
+                            <textarea class="form-control" id="form4Example3" rows="10"></textarea>
+                            <label class="form-label" for="form4Example3">Article Text</label>
+                          </div>
+                        <button type="submit" class="btn btn-primary btn-block">Publish</button>
+                    </form>
+
+                </div>
+                <div class="col-md-3">
+                    <div>
+                        <div class="d-block text-center mb-3">
+                            <h4>Add Categories:</h4>
+                        </div>
+                        <button type="button" class="btn btn-primary btn-rounded m-1">Primary</button>
+                        <button type="button" class="btn btn-secondary btn-rounded m-1">Secondary</button>
+                        <button type="button" class="btn btn-success btn-rounded m-1">Success</button>
+                        <button type="button" class="btn btn-danger btn-rounded m-1">Danger</button>
+                        <button type="button" class="btn btn-warning btn-rounded m-1">Warning</button>
+                        <button type="button" class="btn btn-info btn-rounded" m-1>Info</button>
+                        <button type="button" class="btn btn-primary btn-rounded m-1">Primary</button>
+                        <button type="button" class="btn btn-secondary btn-rounded m-1">Secondary</button>
+                        <button type="button" class="btn btn-success btn-rounded m-1">Success</button>
+                        <button type="button" class="btn btn-danger btn-rounded m-1">Danger</button>
+                        <button type="button" class="btn btn-warning btn-rounded m-1">Warning</button>
+                        <button type="button" class="btn btn-info btn-rounded m-1">Info</button>
+                        <button type="button" class="btn btn-light btn-rounded m-1">Light</button>
+                        <button type="button" class="btn btn-dark btn-rounded m-1">Dark</button>
+                        <button type="button" class="btn btn-light btn-rounded m-1">Light</button>
+                        <button type="button" class="btn btn-dark btn-rounded m-1">Dark</button>
+                        <button type="button" class="btn btn-primary btn-rounded">Primary</button>
+                        <button type="button" class="btn btn-secondary btn-rounded m-1">Secondary</button>
+                        <button type="button" class="btn btn-success btn-rounded m-1">Success</button>
+                        <button type="button" class="btn btn-danger btn-rounded m-1">Danger</button>
+                        <button type="button" class="btn btn-primary btn-rounded m-1">Primary</button>
+                        <button type="button" class="btn btn-secondary btn-rounded m-1">Secondary</button>
+                        <button type="button" class="btn btn-success btn-rounded m-1">Success</button>
+                        <button type="button" class="btn btn-danger btn-rounded m-1">Danger</button>
+                        <button type="button" class="btn btn-warning btn-rounded m-1">Warning</button>
+                        <button type="button" class="btn btn-info btn-rounded m-1">Info</button>
+                        <button type="button" class="btn btn-light btn-rounded m-1">Light</button>
+                        <button type="button" class="btn btn-dark btn-rounded m-1">Dark</button>
+                        <button type="button" class="btn btn-warning btn-rounded m-1">Warning</button>
+                        <button type="button" class="btn btn-info btn-rounded m-1">Info</button>
+                        <button type="button" class="btn btn-light btn-rounded m-1">Light</button>
+                        <button type="button" class="btn btn-dark btn-rounded m-1">Dark</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+{% endblock %}
