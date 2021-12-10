@@ -14,8 +14,8 @@ W2Blog
       <div class="mask" style="background-color: rgba(0, 0, 0, 0.6);">
         <div class="d-flex justify-content-center align-items-center h-100">
           <div class="text-white">
-            <h1 class="mb-3">Heading</h1>
-            <h4 class="mb-3">Subheading</h4>
+            <h1 class="mb-3">W2Blog</h1>
+            <h4 class="mb-3">Scientific articles for you</h4>
             <!-- <a class="btn btn-outline-light btn-lg" href="#!" role="button">Call to action</a> -->
           </div>
         </div>
@@ -32,234 +32,26 @@ W2Blog
           <div class="col-md-9">
             <div class="m-5">
               <div class="row">
+                {% for article in cntxt['articles'] %}
                 <div class="col-md-6">
                   <div class="card mt-2">
                     <div class="bg-image hover-overlay ripple" data-mdb-ripple-color="light">
-                      <img src="https://mdbootstrap.com/img/new/standard/nature/111.jpg" class="img-fluid" />
-                      <a href="#!">
+                      <img src="{{ url_for('static', filename='img/'+article.image)}}" class="img-fluid" />
+                      <a href="{{url_for('post', id=article.id)}}">
                         <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
                       </a>
                     </div>
                     <div class="card-body">
-                      <h5 class="card-title">Card title</h5>
+                      <h5 class="card-title">{{article.title}}</h5>
                       <p class="card-text">
-                        Some quick example text to build on the card title and make up the bulk of the
-                        card's content...
+                        {{article.body[:150]+'...'}}
                       </p>
-                      <a href="#!" class="btn btn-rounded btn-primary">Read more</a>
+                      <a href="{{url_for('post', id=article.id)}}" class="btn btn-rounded btn-primary">Read more</a>
                     </div>
-                    <div class="card-footer text-muted">2 days ago</div>
+                    <div class="card-footer text-muted">{{article.get_date()}}</div>
                   </div>
                 </div>
-                <div class="col-md-6">
-                  <div class="card mt-2">
-                    <div class="bg-image hover-overlay ripple" data-mdb-ripple-color="light">
-                      <img src="https://mdbootstrap.com/img/new/standard/nature/112.jpg" class="img-fluid" />
-                      <a href="#!">
-                        <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
-                      </a>
-                    </div>
-                    <div class="card-body">
-                      <h5 class="card-title">Card title</h5>
-                      <p class="card-text">
-                        Some quick example text to build on the card title and make up the bulk of the
-                        card's content...
-                      </p>
-                      <a href="#!" class="btn btn-rounded btn-primary">Read more</a>
-                    </div>
-                    <div class="card-footer text-muted">2 days ago</div>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="card mt-2">
-                    <div class="bg-image hover-overlay ripple" data-mdb-ripple-color="light">
-                      <img src="https://mdbootstrap.com/img/new/standard/nature/113.jpg" class="img-fluid" />
-                      <a href="#!">
-                        <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
-                      </a>
-                    </div>
-                    <div class="card-body">
-                      <h5 class="card-title">Card title</h5>
-                      <p class="card-text">
-                        Some quick example text to build on the card title and make up the bulk of the
-                        card's content...
-                      </p>
-                      <a href="#!" class="btn btn-rounded btn-primary">Read more</a>
-                    </div>
-                    <div class="card-footer text-muted">2 days ago</div>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="card mt-2">
-                    <div class="bg-image hover-overlay ripple" data-mdb-ripple-color="light">
-                      <img src="https://mdbootstrap.com/img/new/standard/nature/114.jpg" class="img-fluid" />
-                      <a href="#!">
-                        <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
-                      </a>
-                    </div>
-                    <div class="card-body">
-                      <h5 class="card-title">Card title</h5>
-                      <p class="card-text">
-                        Some quick example text to build on the card title and make up the bulk of the
-                        card's content...
-                      </p>
-                      <a href="#!" class="btn btn-rounded btn-primary">Read more</a>
-                    </div>
-                    <div class="card-footer text-muted">2 days ago</div>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="card mt-2">
-                    <div class="bg-image hover-overlay ripple" data-mdb-ripple-color="light">
-                      <img src="https://mdbootstrap.com/img/new/standard/nature/115.jpg" class="img-fluid" />
-                      <a href="#!">
-                        <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
-                      </a>
-                    </div>
-                    <div class="card-body">
-                      <h5 class="card-title">Card title</h5>
-                      <p class="card-text">
-                        Some quick example text to build on the card title and make up the bulk of the
-                        card's content...
-                      </p>
-                      <a href="#!" class="btn btn-rounded btn-primary">Read more</a>
-                    </div>
-                    <div class="card-footer text-muted">2 days ago</div>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="card mt-2">
-                    <div class="bg-image hover-overlay ripple" data-mdb-ripple-color="light">
-                      <img src="https://mdbootstrap.com/img/new/standard/nature/116.jpg" class="img-fluid" />
-                      <a href="#!">
-                        <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
-                      </a>
-                    </div>
-                    <div class="card-body">
-                      <h5 class="card-title">Card title</h5>
-                      <p class="card-text">
-                        Some quick example text to build on the card title and make up the bulk of the
-                        card's content...
-                      </p>
-                      <a href="#!" class="btn btn-rounded btn-primary">Read more</a>
-                    </div>
-                    <div class="card-footer text-muted">2 days ago</div>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="card mt-2">
-                    <div class="bg-image hover-overlay ripple" data-mdb-ripple-color="light">
-                      <img src="https://mdbootstrap.com/img/new/standard/nature/117.jpg" class="img-fluid" />
-                      <a href="#!">
-                        <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
-                      </a>
-                    </div>
-                    <div class="card-body">
-                      <h5 class="card-title">Card title</h5>
-                      <p class="card-text">
-                        Some quick example text to build on the card title and make up the bulk of the
-                        card's content...
-                      </p>
-                      <a href="#!" class="btn btn-rounded btn-primary">Read more</a>
-                    </div>
-                    <div class="card-footer text-muted">2 days ago</div>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="card mt-2">
-                    <div class="bg-image hover-overlay ripple" data-mdb-ripple-color="light">
-                      <img src="https://mdbootstrap.com/img/new/standard/nature/118.jpg" class="img-fluid" />
-                      <a href="#!">
-                        <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
-                      </a>
-                    </div>
-                    <div class="card-body">
-                      <h5 class="card-title">Card title</h5>
-                      <p class="card-text">
-                        Some quick example text to build on the card title and make up the bulk of the
-                        card's content...
-                      </p>
-                      <a href="#!" class="btn btn-rounded btn-primary">Read more</a>
-                    </div>
-                    <div class="card-footer text-muted">2 days ago</div>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="card mt-2">
-                    <div class="bg-image hover-overlay ripple" data-mdb-ripple-color="light">
-                      <img src="https://mdbootstrap.com/img/new/standard/nature/119.jpg" class="img-fluid" />
-                      <a href="#!">
-                        <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
-                      </a>
-                    </div>
-                    <div class="card-body">
-                      <h5 class="card-title">Card title</h5>
-                      <p class="card-text">
-                        Some quick example text to build on the card title and make up the bulk of the
-                        card's content...
-                      </p>
-                      <a href="#!" class="btn btn-rounded btn-primary">Read more</a>
-                    </div>
-                    <div class="card-footer text-muted">2 days ago</div>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="card mt-2">
-                    <div class="bg-image hover-overlay ripple" data-mdb-ripple-color="light">
-                      <img src="https://mdbootstrap.com/img/new/standard/nature/120.jpg" class="img-fluid" />
-                      <a href="#!">
-                        <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
-                      </a>
-                    </div>
-                    <div class="card-body">
-                      <h5 class="card-title">Card title</h5>
-                      <p class="card-text">
-                        Some quick example text to build on the card title and make up the bulk of the
-                        card's content...
-                      </p>
-                      <a href="#!" class="btn btn-rounded btn-primary">Read more</a>
-                    </div>
-                    <div class="card-footer text-muted">2 days ago</div>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="card mt-2">
-                    <div class="bg-image hover-overlay ripple" data-mdb-ripple-color="light">
-                      <img src="https://mdbootstrap.com/img/new/standard/nature/121.jpg" class="img-fluid" />
-                      <a href="#!">
-                        <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
-                      </a>
-                    </div>
-                    <div class="card-body">
-                      <h5 class="card-title">Card title</h5>
-                      <p class="card-text">
-                        Some quick example text to build on the card title and make up the bulk of the
-                        card's content...
-                      </p>
-                      <a href="#!" class="btn btn-rounded btn-primary">Read more</a>
-                    </div>
-                    <div class="card-footer text-muted">2 days ago</div>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="card mt-2">
-                    <div class="bg-image hover-overlay ripple" data-mdb-ripple-color="light">
-                      <img src="https://mdbootstrap.com/img/new/standard/nature/122.jpg" class="img-fluid" />
-                      <a href="#!">
-                        <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
-                      </a>
-                    </div>
-                    <div class="card-body">
-                      <h5 class="card-title">Card title</h5>
-                      <p class="card-text">
-                        Some quick example text to build on the card title and make up the bulk of the
-                        card's content...
-                      </p>
-                      <a href="#!" class="btn btn-rounded btn-primary">Read more</a>
-                    </div>
-                    <div class="card-footer text-muted">2 days ago</div>
-                  </div>
-                </div>
+                {% endfor %}
               </div>
             </div>
           </div>
@@ -268,38 +60,11 @@ W2Blog
               <div class="d-block text-center mb-3">
                 <h4>Categories:</h4>
               </div>
-              <button type="button" class="btn btn-primary btn-rounded m-1">Primary</button>
-              <button type="button" class="btn btn-secondary btn-rounded m-1">Secondary</button>
-              <button type="button" class="btn btn-success btn-rounded m-1">Success</button>
-              <button type="button" class="btn btn-danger btn-rounded m-1">Danger</button>
-              <button type="button" class="btn btn-warning btn-rounded m-1">Warning</button>
-              <button type="button" class="btn btn-info btn-rounded" m-1>Info</button>
-              <button type="button" class="btn btn-primary btn-rounded m-1">Primary</button>
-              <button type="button" class="btn btn-secondary btn-rounded m-1">Secondary</button>
-              <button type="button" class="btn btn-success btn-rounded m-1">Success</button>
-              <button type="button" class="btn btn-danger btn-rounded m-1">Danger</button>
-              <button type="button" class="btn btn-warning btn-rounded m-1">Warning</button>
-              <button type="button" class="btn btn-info btn-rounded m-1">Info</button>
-              <button type="button" class="btn btn-light btn-rounded m-1">Light</button>
-              <button type="button" class="btn btn-dark btn-rounded m-1">Dark</button>
-              <button type="button" class="btn btn-light btn-rounded m-1">Light</button>
-              <button type="button" class="btn btn-dark btn-rounded m-1">Dark</button>
-              <button type="button" class="btn btn-primary btn-rounded">Primary</button>
-              <button type="button" class="btn btn-secondary btn-rounded m-1">Secondary</button>
-              <button type="button" class="btn btn-success btn-rounded m-1">Success</button>
-              <button type="button" class="btn btn-danger btn-rounded m-1">Danger</button>
-              <button type="button" class="btn btn-primary btn-rounded m-1">Primary</button>
-              <button type="button" class="btn btn-secondary btn-rounded m-1">Secondary</button>
-              <button type="button" class="btn btn-success btn-rounded m-1">Success</button>
-              <button type="button" class="btn btn-danger btn-rounded m-1">Danger</button>
-              <button type="button" class="btn btn-warning btn-rounded m-1">Warning</button>
-              <button type="button" class="btn btn-info btn-rounded m-1">Info</button>
-              <button type="button" class="btn btn-light btn-rounded m-1">Light</button>
-              <button type="button" class="btn btn-dark btn-rounded m-1">Dark</button>
-              <button type="button" class="btn btn-warning btn-rounded m-1">Warning</button>
-              <button type="button" class="btn btn-info btn-rounded m-1">Info</button>
-              <button type="button" class="btn btn-light btn-rounded m-1">Light</button>
-              <button type="button" class="btn btn-dark btn-rounded m-1">Dark</button>
+              {% for category in cntxt['categories'] %}
+              <a href="{{url_for('index', cat_id=category.id)}}">
+                <button type="button" class="btn btn-info btn-rounded btn-sm m-1">{{category.name}}</button>
+              </a>
+              {% endfor %}
             </div>
           </div>
         </div>
