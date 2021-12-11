@@ -1,5 +1,5 @@
 import datetime
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect, url_for, abort
 from flask_sqlalchemy import SQLAlchemy
 
 
@@ -25,6 +25,7 @@ class Article(db.Model):
     pub_date = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     categories = db.relationship("Category", secondary=article_categories, back_populates="articles")
+    comments = db.relationship('Comment', backref='article')
 
     def get_date(self):
         return datetime.datetime.fromisoformat(str(self.pub_date)).strftime("%A %d. %b %Y")
@@ -42,25 +43,35 @@ class Category(db.Model):
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
+    username = db.Column(db.String(30), unique=True, nullable=False)
+    fullname = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(1024), nullable=False)
     image = db.Column(db.String(80), nullable=False, default="default_user_image.png")
+    about_me = db.Column(db.String(2048), default="About this user", nullable=False)
     last_login = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
     articles = db.relationship('Article', backref='user')
+    comments = db.relationship('Comment', backref='user')
 
     def __repr__(self):
         return '<User %r>' % self.username
+
+class Comment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    body = db.Column(db.String(1024), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    article_id = db.Column(db.Integer, db.ForeignKey('article.id'))
 
 
 
 @app.route("/")
 @app.route("/category/<int:cat_id>")
 def index(cat_id=None):
+    w2b_context.clear()
     w2b_context.update({"user":{"user_id":-1}}) #! Add user controll system
     w2b_context.update({"categories":Category.query.all()})
     if cat_id == None :
-        w2b_context.update({"articles":Article.query.all()})
+        w2b_context.update({"articles":Article.query.all(), "category":-1})
     else:
         articles = []
         if Category.query.filter_by(id=cat_id).count() > 0:
@@ -68,22 +79,48 @@ def index(cat_id=None):
             for article in Article.query.all():
                 if category in article.categories:
                     articles.append(article)
-        w2b_context.update({"articles":articles})
-        w2b_context.update({"category":cat_id})
-    #print(w2b_context)
+        w2b_context.update({"articles":articles, "category":cat_id})
     return render_template("index.html", cntxt=w2b_context)
 
-@app.route("/post/<id>")
-def post(id):
+@app.route("/post/<int:id>")
+def post(id=None):
+    w2b_context.clear()
+    w2b_context.update({"user":{"user_id":-1}}) #! Add user controll system
+    if id == None:
+        return redirect(url_for('index'))
+    article = Article.query.filter_by(id=id).first()
+    w2b_context.update({"article":article})
     return render_template("post.html", cntxt=w2b_context)
 
 @app.route("/lr")
 def lr():
+    w2b_context.clear()
+    w2b_context.update({"user":{"user_id":-1}}) #! Add user controll system
     return render_template("lr.html", cntxt=w2b_context)
 
 @app.route("/edit")
 def edit():
+    w2b_context.clear()
+    w2b_context.update({"user":{"user_id":-1}}) #! Add user controll system
     return render_template("edit.html", cntxt=w2b_context)
+
+@app.route("/about")
+def about():
+    w2b_context.clear()
+    w2b_context.update({"user":{"user_id":-1}}) #! Add user controll system
+    return abort(404)
+
+@app.route("/projects")
+def projects():
+    w2b_context.clear()
+    w2b_context.update({"user":{"user_id":-1}}) #! Add user controll system
+    return abort(404)
+
+@app.route("/gallery")
+def gallery():
+    w2b_context.clear()
+    w2b_context.update({"user":{"user_id":-1}}) #! Add user controll system
+    return abort(404)
 
 if __name__ == "__main__":
     app.run(debug=True)
