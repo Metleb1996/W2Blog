@@ -11,6 +11,7 @@ from flask_wtf.file import FileField, FileRequired
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///vt.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+app.secret_key = b'HbfGMYwEOnP3oVEbbnPuoYxx1FHPdLSoNKku3qmKfWUjt6tsLdm3USo5k7JRWmXNiGIjpyXtm7DZ1DbAYAzn0g8LmerBW1DsaeSf'
 db = SQLAlchemy(app)
 
 w2b_context = {}
@@ -70,15 +71,18 @@ class Comment(db.Model):
 
 
 class RegistrationForm(Form):
+    fullname = StringField('Full Name', [validators.DataRequired(), validators.Length(min=5, max=35)], render_kw={"class":"form-control","maxlength":"35","minlength":"6"})
     username = StringField('User Name', [validators.DataRequired(), validators.Length(min=4, max=25)], render_kw={"class":"form-control","maxlength":"25","minlength":"4"})
     email = EmailField('Email address', [validators.DataRequired(), validators.Length(min=8, max=35), validators.Email(message=(u'That\'s not a valid email address.'))], render_kw={"class":"form-control","maxlength":"35","minlength":"8"})
     password = PasswordField('Password', [validators.DataRequired(), validators.Length(min=10, max=35), validators.EqualTo('confirm', message='Passwords must match')], render_kw={"class":"form-control","maxlength":"35","minlength":"10"})
     confirm = PasswordField('Repeat Password', [validators.DataRequired()], render_kw={"class":"form-control"})
+    iagree = BooleanField(" I have read and agree to the terms ", render_kw={"class":"form-check-input","checked":"checked","value":"1"})
     submitbutton = SubmitField("Register")
 
 class LoginForm(Form):
     email = EmailField('Email address', [validators.DataRequired(), validators.Length(min=8, max=35), validators.Email(message=(u'That\'s not a valid email address.'))], render_kw={"class":"form-control","maxlength":"35","minlength":"8"})
     password = PasswordField('Password', [validators.DataRequired(), validators.Length(min=10, max=35)], render_kw={"class":"form-control","maxlength":"35","minlength":"10"})
+    rememberme = BooleanField(" Remember me ", render_kw={"class":"form-check-input","checked":"checked","value":"1"})
     submitbutton = SubmitField("Login")
 
 def csrf_text(size=32, chars=string.ascii_uppercase + string.ascii_lowercase + string.digits):
@@ -90,12 +94,22 @@ def is_email(email):
         return True
     return False
 
+def show_message(msg:str):
+    w2b_context.clear()
+    if "user_id" in session:
+        user = User.query.filter_by(id=session['user_id']).first()
+        w2b_context.update({"user":{"user_id":session['user_id'], "user":user}})
+    else:
+        w2b_context.update({"user":{"user_id":-1}})
+    w2b_context.update({"message":msg}) 
+    return render_template("message.html", cntxt=w2b_context)
+
 @app.route("/")
 @app.route("/category/<int:cat_id>")
 def index(cat_id=None):
     w2b_context.clear()
     if "user_id" in session:
-        user = User.query.filter_by(id=session['user_id'])
+        user = User.query.filter_by(id=session['user_id']).first()
         w2b_context.update({"user":{"user_id":session['user_id'], "user":user}})
     else:
         w2b_context.update({"user":{"user_id":-1}}) 
@@ -116,7 +130,7 @@ def index(cat_id=None):
 def post(id=None):
     w2b_context.clear()
     if "user_id" in session:
-        user = User.query.filter_by(id=session['user_id'])
+        user = User.query.filter_by(id=session['user_id']).first()
         w2b_context.update({"user":{"user_id":session['user_id'], "user":user}})
     else:
         w2b_context.update({"user":{"user_id":-1}}) 
@@ -126,11 +140,8 @@ def post(id=None):
     w2b_context.update({"article":article})
     return render_template("post.html", cntxt=w2b_context)
 
-@app.route("/lr", methods=['POST', 'GET'])
+@app.route("/lr")
 def lr():
-    if request.method == "POST":
-        # TODO
-        return redirect(url_for('index'))
     w2b_context.clear()
     if "user_id" in session:
         session.pop('user_id', None) 
@@ -141,16 +152,64 @@ def lr():
     w2b_context.update({"user":{"user_id":-1}, "csrf_token":csrf_token, "lform":lform, "rform":rform})
     return render_template("lr.html", cntxt=w2b_context)
 
+@app.route("/lor/<lr>", methods=['POST',])
+def lor(lr=None):
+    if request.method == "POST" and  request.form['csrf_token'] == session["csrf_token"]:
+        if lr == "l":
+            user_email = request.form['email']
+            user_pass = request.form['password']
+            if User.query.filter_by(email=user_email).count()>0:
+                us = User.query.filter_by(email=user_email).first()
+                if us.password == user_pass:
+                    session['user_id'] = us.id
+                    return redirect(url_for('index'))
+                else:
+                    return show_message(msg="Passwords do not match!") 
+            else:
+                return show_message(msg="This email is wrong!")
+        elif lr == "r":
+            user_name = request.form['username']
+            full_name = request.form['fullname']
+            user_email = request.form['email']
+            user_pass = request.form['password']
+            user_confirm = request.form['confirm']
+            if not(User.query.filter_by(email=user_email).count()>0):
+                if not(User.query.filter_by(username=user_name).count()>0):
+                    if user_pass == user_confirm:
+                        new_user = User(username=user_name, fullname=full_name, email=user_email, password=user_pass)
+                        db.session.add(new_user)
+                        db.session.commit()
+                        session['user_id'] = new_user.id
+                        return redirect(url_for('index'))
+                    else:
+                        return show_message(msg="Passwords do not match!")
+                else:
+                    return show_message(msg="This username is used!")
+            else:
+                return show_message(msg="This email is being used!")
+        else:
+            return show_message(msg="Bad request")
+    else:
+        return abort(404)
+
 @app.route("/logout")
 def logout():
 	session.pop('user_id', None)
 	return redirect(url_for('index'))
 
+@app.route("/forgotpassword")
+def fpass():
+    w2b_context.clear()
+    if "user_id" in session:
+        session.pop('user_id', None)
+    w2b_context.update({"user":{"user_id":-1}}) 
+    return abort(404)
+
 @app.route("/edit")
 def edit():
     w2b_context.clear()
     if "user_id" in session:
-        user = User.query.filter_by(id=session['user_id'])
+        user = User.query.filter_by(id=session['user_id']).first()
         w2b_context.update({"user":{"user_id":session['user_id'], "user":user}})
     else:
         w2b_context.update({"user":{"user_id":-1}}) 
@@ -160,7 +219,7 @@ def edit():
 def about():
     w2b_context.clear()
     if "user_id" in session:
-        user = User.query.filter_by(id=session['user_id'])
+        user = User.query.filter_by(id=session['user_id']).first()
         w2b_context.update({"user":{"user_id":session['user_id'], "user":user}})
     else:
         w2b_context.update({"user":{"user_id":-1}}) 
@@ -170,7 +229,7 @@ def about():
 def projects():
     w2b_context.clear()
     if "user_id" in session:
-        user = User.query.filter_by(id=session['user_id'])
+        user = User.query.filter_by(id=session['user_id']).first()
         w2b_context.update({"user":{"user_id":session['user_id'], "user":user}})
     else:
         w2b_context.update({"user":{"user_id":-1}}) 
@@ -180,7 +239,7 @@ def projects():
 def gallery():
     w2b_context.clear()
     if "user_id" in session:
-        user = User.query.filter_by(id=session['user_id'])
+        user = User.query.filter_by(id=session['user_id']).first()
         w2b_context.update({"user":{"user_id":session['user_id'], "user":user}})
     else:
         w2b_context.update({"user":{"user_id":-1}}) 
