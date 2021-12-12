@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block title_content %}
-W2Blog-Post(aa.bb.cccc)
+W2Blog-{{cntxt['article'].title}}
 {% endblock %}
 
 {% block main_content %}
@@ -12,17 +12,17 @@ W2Blog-Post(aa.bb.cccc)
           <div class="col-md-9" style="margin-top: 60px;">
             <div class="text-center" id="article">
               <div id="articleheader">
-                <h1 class="mt-3">Lorem, ipsum.</h1>
-                <h5 class="text-muted">Lorem ipsum dolor sit.</h5>
+                <h1 class="mt-3">{{cntxt['article'].title}}</h1>
+                <h5 class="text-muted">{{cntxt['article'].subtitle}}</h5>
               </div>
               <div id="articlebody">
-                <img src="https://mdbootstrap.com/img/new/standard/nature/132.jpg" alt="Image"
+                <img src="{{ url_for('static', filename='img/'+cntxt['article'].image)}}" alt="Image"
                   class="img-fluid rounded my-4 shadow-3-strong">
                 <div class="row">
                   <div class="col-md-6 text-start ps-4">
-                    <img src="https://metleb1996.github.io/img/20210822_162320.jpg" alt="Author"
+                    <img src="{{ url_for('static', filename='img/'+cntxt['article'].user.image)}}" alt="Author"
                       class="rounded-circle shadow-1-strong-mr-2" height="35">
-                    <span>Published <u>01.01.3333</u> by Metleb Rustemov</span>
+                    <span>Published <u>{{cntxt['article'].get_date()}}</u> by {{cntxt['article'].user.username}}</span>
                   </div>
                   <div class="col-md-6 text-end pe-4">
                     <!-- Facebook -->
@@ -44,23 +44,7 @@ W2Blog-Post(aa.bb.cccc)
                 </div>
                 <hr />
                 <div class="text-start mb-4">
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Tenetur dicta suscipit maiores, at, ipsum
-                  totam voluptatem, repudiandae eius nihil molestiae est consequuntur exercitationem enim perferendis
-                  sed distinctio. Architecto dicta non maxime nam accusamus porro neque esse est, explicabo iusto
-                  repellendus expedita necessitatibus magni veniam nesciunt minus nihil incidunt distinctio ducimus
-                  magnam! Quibusdam beatae aliquid eius reprehenderit consequuntur quisquam quos assumenda veniam
-                  quidem. Quibusdam cupiditate, quo rem nam veritatis vitae eaque harum expedita delectus vero ad
-                  quisquam labore, dolore aut deleniti asperiores modi impedit ex, ipsam magnam? Voluptatibus doloremque
-                  reprehenderit, illum fuga odit aliquid, velit perspiciatis alias, possimus dignissimos consectetur
-                  deleniti dolorem eaque adipisci quasi. Assumenda, inventore doloremque quisquam maxime porro dolore
-                  nobis eos minus eveniet odit, nesciunt reiciendis minima nisi architecto dolorem. Placeat,
-                  voluptatibus blanditiis? Repudiandae totam, consequuntur aut dolor illum nesciunt velit voluptas
-                  doloremque fugit perferendis omnis alias asperiores veritatis, neque reprehenderit rerum similique ea
-                  laboriosam! Accusantium, quo fugit.
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Doloremque aliquam minima accusantium nulla
-                  omnis. Praesentium nobis commodi dolores magni ut porro expedita deserunt debitis, rerum ab, explicabo
-                  sapiente velit, maiores maxime similique. Voluptatibus, ab recusandae iusto ipsam illo officia
-                  nostrum, quidem perspiciatis illum quia, aut quaerat dicta quod porro itaque.
+                  {{cntxt['article'].body}}
                 </div>
                 <hr />
                 <div>
@@ -84,11 +68,11 @@ W2Blog-Post(aa.bb.cccc)
               <div id="articleauthor">
                 <div class="row m-0 mt-5">
                   <div class="col-md-4">
-                    <img src="https://metleb1996.github.io/img/20210822_162320.jpg" alt="Author"
+                    <img src="{{ url_for('static', filename='img/'+cntxt['article'].user.image)}}" alt="Author"
                       class="img-fluid rounded-circle shadow-1-strong-mr-2">
                   </div>
                   <div class="col-md-8 text-start">
-                    <h5 class="m-4">Metleb Rustemov</h5>
+                    <h5 class="m-4">{{cntxt['article'].user.username}}</h5>
                     <div class="ms-4">
                       <!-- Facebook -->
                       <a style="color: #3b5998;" href="#!" role="button"><i class="fab fa-facebook-f fa-lg m-2"></i></a>
@@ -103,58 +87,34 @@ W2Blog-Post(aa.bb.cccc)
                       <a style="color: #ac2bac;" href="#!" role="button"><i class="fab fa-instagram fa-lg m-2"></i></a>
                     </div>
 
-                    <p class="ms-4 mt-2">Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestiae
-                      nemo officiis necessitatibus error enim? Reiciendis possimus fuga velit debitis porro.</p>
+                    <p class="ms-4 mt-2">{{cntxt['article'].user.about_me}}</p>
                   </div>
                 </div>
               </div>
             </div>
             <div class="m-4 text-center" id="articlecomments">
               <h5 class="mt-5">Comments:</h5>
+              {% for comment in cntxt['article'].comments %}
               <div class="comment">
                 <div class="row m-0 mt-3">
                   <div class="col-md-3">
-                    <img src="https://metleb1996.github.io/img/20210822_162320.jpg" alt="Author"
+                    <img src="{{ url_for('static', filename='img/'+comment.user.image)}}" alt="Author"
                       class="img-fluid rounded-circle shadow-1-strong-mr-2">
                   </div>
                   <div class="col-md-9 text-start">
-                    <h5 class="m-4">Metleb Rustemov</h5>
+                    <h5 class="m-4">{{comment.user.username}} says:</h5>
 
-                    <p class="ms-4 mt-2">Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestiae
-                      nemo officiis necessitatibus error enim? Reiciendis possimus fuga velit debitis porro.</p>
+                    <p class="ms-4 mt-2">{{comment.body}}</p>
                   </div>
                 </div>
               </div>
-              <div class="comment">
-                <div class="row m-0 mt-3">
-                  <div class="col-md-3">
-                    <img src="https://metleb1996.github.io/img/20210822_162320.jpg" alt="Author"
-                      class="img-fluid rounded-circle shadow-1-strong-mr-2">
-                  </div>
-                  <div class="col-md-9 text-start">
-                    <h5 class="m-4">Metleb Rustemov</h5>
-
-                    <p class="ms-4 mt-2">Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestiae
-                      nemo officiis necessitatibus error enim? Reiciendis possimus fuga velit debitis porro.</p>
-                  </div>
-                </div>
-              </div>
+              {% endfor %}
             </div>
             <div id="newcomment">
               <div class="mt-3 m-5">
+                {% if cntxt['user']['user_id'] != -1 %}
                 <form>
-                  <!-- Name input -->
-                  <div class="form-outline mb-4">
-                    <input type="text" id="form4Example1" class="form-control" />
-                    <label class="form-label" for="form4Example1">Name</label>
-                  </div>
-                
-                  <!-- Email input -->
-                  <div class="form-outline mb-4">
-                    <input type="email" id="form4Example2" class="form-control" />
-                    <label class="form-label" for="form4Example2">Email address</label>
-                  </div>
-                
+                  
                   <!-- Message input -->
                   <div class="form-outline mb-4">
                     <textarea class="form-control" id="form4Example3" rows="4"></textarea>
@@ -178,44 +138,18 @@ W2Blog-Post(aa.bb.cccc)
                   <!-- Submit button -->
                   <button type="submit" class="btn btn-primary btn-block mb-4">Send Comment</button>
                 </form>
+                {% endif %}
               </div>
             </div>
           </div>
           <div class="col-md-3">
             <div class="mt-5  sticky-top" style="top: 65px;">
               <div class="d-block text-center mb-3"><h4>Categories:</h4></div>
-              <button type="button" class="btn btn-primary btn-rounded m-1">Primary</button>
-              <button type="button" class="btn btn-secondary btn-rounded m-1">Secondary</button>
-              <button type="button" class="btn btn-success btn-rounded m-1">Success</button>
-              <button type="button" class="btn btn-danger btn-rounded m-1">Danger</button>
-              <button type="button" class="btn btn-warning btn-rounded m-1">Warning</button>
-              <button type="button" class="btn btn-info btn-rounded" m-1>Info</button>
-              <button type="button" class="btn btn-primary btn-rounded m-1">Primary</button>
-              <button type="button" class="btn btn-secondary btn-rounded m-1">Secondary</button>
-              <button type="button" class="btn btn-success btn-rounded m-1">Success</button>
-              <button type="button" class="btn btn-danger btn-rounded m-1">Danger</button>
-              <button type="button" class="btn btn-warning btn-rounded m-1">Warning</button>
-              <button type="button" class="btn btn-info btn-rounded m-1">Info</button>
-              <button type="button" class="btn btn-light btn-rounded m-1">Light</button>
-              <button type="button" class="btn btn-dark btn-rounded m-1">Dark</button>
-              <button type="button" class="btn btn-light btn-rounded m-1">Light</button>
-              <button type="button" class="btn btn-dark btn-rounded m-1">Dark</button>
-              <button type="button" class="btn btn-primary btn-rounded">Primary</button>
-              <button type="button" class="btn btn-secondary btn-rounded m-1">Secondary</button>
-              <button type="button" class="btn btn-success btn-rounded m-1">Success</button>
-              <button type="button" class="btn btn-danger btn-rounded m-1">Danger</button>
-              <button type="button" class="btn btn-primary btn-rounded m-1">Primary</button>
-              <button type="button" class="btn btn-secondary btn-rounded m-1">Secondary</button>
-              <button type="button" class="btn btn-success btn-rounded m-1">Success</button>
-              <button type="button" class="btn btn-danger btn-rounded m-1">Danger</button>
-              <button type="button" class="btn btn-warning btn-rounded m-1">Warning</button>
-              <button type="button" class="btn btn-info btn-rounded m-1">Info</button>
-              <button type="button" class="btn btn-light btn-rounded m-1">Light</button>
-              <button type="button" class="btn btn-dark btn-rounded m-1">Dark</button>
-              <button type="button" class="btn btn-warning btn-rounded m-1">Warning</button>
-              <button type="button" class="btn btn-info btn-rounded m-1">Info</button>
-              <button type="button" class="btn btn-light btn-rounded m-1">Light</button>
-              <button type="button" class="btn btn-dark btn-rounded m-1">Dark</button>
+              {% for category in cntxt['article'].categories %}
+              <a href="{{url_for('index', cat_id=category.id)}}">
+                <button type="button" class="btn btn-info btn-rounded btn-sm m-1">{{category.name}}</button>
+              </a>
+              {% endfor %}
             </div>
           </div>
         </div>

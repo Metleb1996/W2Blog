@@ -138,6 +138,11 @@ W2Blog-Login
                   {{cntxt['rform'].confirm.label(class="form-label")}}
                 </div>
 
+                <!-- CSRF Token -->
+                <div>
+                  <input type="hidden" name="csrf_token" id="csrf_token" value="{{cntxt['csrf_token']}}">
+                </div>
+
                 <!-- Checkbox -->
                 <div class="form-check d-flex justify-content-center mb-4">
                   {{cntxt['rform'].iagree}}

@@ -104,6 +104,20 @@ def show_message(msg:str):
     w2b_context.update({"message":msg}) 
     return render_template("message.html", cntxt=w2b_context)
 
+def form_checker(form, rules:dict):
+    keys = rules.keys()
+    for key in keys:
+        if not key in form:
+            return False, "{} required!".format(rules[key])
+        if len(form[key]) > rules[key]['max']:
+            return False, "{} is to long!".format(rules[key])
+        if len(form[key]) < rules[key]['min']:
+            return False, "{} is to short!".format(rules[key])
+        if rules[key]['type'] == "email":
+            if not is_email(form[key]):
+                return False, "{} not email!".format(form[key])
+    return True, None
+
 @app.route("/")
 @app.route("/category/<int:cat_id>")
 def index(cat_id=None):
@@ -156,6 +170,11 @@ def lr():
 def lor(lr=None):
     if request.method == "POST" and  request.form['csrf_token'] == session["csrf_token"]:
         if lr == "l":
+            rules = {"email":{"min":8,"max":35,"type":"email"}, \
+                    "password":{"min":10,"max":35,"type":"text"},}
+            success, msg = form_checker(request.form, rules)
+            if not success:
+                return show_message(msg=msg) 
             user_email = request.form['email']
             user_pass = request.form['password']
             if User.query.filter_by(email=user_email).count()>0:
@@ -168,6 +187,14 @@ def lor(lr=None):
             else:
                 return show_message(msg="This email is wrong!")
         elif lr == "r":
+            rules = {"username":{"min":4,"max":25,"type":"text"}, \
+                    "fullname":{"min":5,"max":35,"type":"text"}, \
+                    "email":{"min":8,"max":35,"type":"email"}, \
+                    "password":{"min":10,"max":35,"type":"text"}, \
+                    "confirm":{"min":10,"max":35,"type":"text"}}
+            success, msg = form_checker(request.form, rules)
+            if not success:
+                return show_message(msg=msg) 
             user_name = request.form['username']
             full_name = request.form['fullname']
             user_email = request.form['email']

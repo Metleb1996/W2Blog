@@ -7,7 +7,7 @@ W2Blog
 {% block bgimage_content %}
     <!-- Background image -->
     <div class="p-5 text-center bg-image shadow-5" style="
-      background-image: url('https://mdbootstrap.com/img/new/slides/041.jpg');
+      background-image: url('https://mdbootstrap.com/img/new/slides/059.jpg');
       height: 400px;
       margin-top: 60px;
     ">
@@ -61,9 +61,13 @@ W2Blog
                 <h4>Categories:</h4>
               </div>
               {% for category in cntxt['categories'] %}
+              {% if category.id == cntxt['category'] %}
+              <button type="button" class="btn btn-info btn-rounded btn-sm m-1 disabled">{{category.name}}</button>
+              {% else %}
               <a href="{{url_for('index', cat_id=category.id)}}">
                 <button type="button" class="btn btn-info btn-rounded btn-sm m-1">{{category.name}}</button>
               </a>
+              {% endif %}
               {% endfor %}
             </div>
           </div>
