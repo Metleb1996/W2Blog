@@ -42,16 +42,16 @@
           <!-- Left links -->
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
-              <a class="nav-link" href="#">About</a>
+              <a class="nav-link{% if request.path == '/about' %} active{% endif %}" href="{{url_for('about')}}">About</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Projects</a>
+              <a class="nav-link{% if request.path == '/projects' %} active{% endif %}" href="{{url_for('projects')}}">Projects</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Gallery</a>
+              <a class="nav-link{% if request.path == '/gallery' %} active{% endif %}" href="{{url_for('gallery')}}">Gallery</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{{url_for('lr')}}">Login</a>
+              <a class="nav-link{% if request.path == '/lr' %} active{% endif %}" href="{{url_for('lr')}}">Login</a>
             </li>
           </ul>
           <!-- Left links -->
@@ -59,9 +59,10 @@
         <!-- Collapsible wrapper -->
 
         <!-- Right elements -->
+        {% if cntxt['user']['user_id'] != -1 %}
         <div class="d-flex align-items-center">
           <!-- Notifications -->
-          <a class="text-reset me-3 dropdown-toggle hidden-arrow" href="#" id="navbarDropdownMenuLink" role="button"
+          <!-- <a class="text-reset me-3 dropdown-toggle hidden-arrow" href="#" id="navbarDropdownMenuLink" role="button"
             data-mdb-toggle="dropdown" aria-expanded="false">
             <i class="fas fa-bell"></i>
             <span class="badge rounded-pill badge-notification bg-danger">5</span>
@@ -76,26 +77,27 @@
             <li>
               <a class="dropdown-item" href="#">Comments</a>
             </li>
-          </ul>
+          </ul> -->
 
           <!-- Avatar -->
           <a class="dropdown-toggle d-flex align-items-center hidden-arrow" href="#" id="navbarDropdownMenuLink"
             role="button" data-mdb-toggle="dropdown" aria-expanded="false">
-            <img src="https://metleb1996.github.io/img/20210822_162320.jpg" class="rounded-circle" height="25" alt=""
-              loading="lazy" />
+            <img src="{{url_for('static', filename='img/'+cntxt['user']['user'].image)}}" class="rounded-circle" height="25" alt=""
+              loading="lazy" data-mdb-toggle="tooltip" data-mdb-placement="top" title="{{cntxt['user']['user'].fullname}}"/>
           </a>
           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
             <li>
               <a class="dropdown-item" href="#">My profile</a>
             </li>
             <li>
-              <a class="dropdown-item" href="#">Create article</a>
+              <a class="dropdown-item" href="{{url_for('edit')}}">Create article</a>
             </li>
             <li>
-              <a class="dropdown-item" href="#">Logout</a>
+              <a class="dropdown-item" href="{{url_for('logout')}}">Logout</a>
             </li>
           </ul>
         </div>
+        {% endif %}
         <!-- Right elements -->
       </div>
       <!-- Container wrapper -->
