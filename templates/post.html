@@ -22,7 +22,7 @@ W2Blog-{{cntxt['article'].title}}
                   <div class="col-md-6 text-start ps-4">
                     <img src="{{ url_for('static', filename='media/'+cntxt['article'].user.image)}}" alt="Author"
                       class="rounded-circle shadow-1-strong-mr-2" height="35">
-                    <span>Published <u>{{cntxt['article'].get_date()}}</u> by {{cntxt['article'].user.username}}</span>
+                    <span>Published <u>{{cntxt['article'].get_date()}}</u> by @{{cntxt['article'].user.username}}</span>
                   </div>
                   <div class="col-md-6 text-end pe-4">
                     <!-- Facebook -->
@@ -72,7 +72,7 @@ W2Blog-{{cntxt['article'].title}}
                       class="img-fluid rounded-circle shadow-1-strong-mr-2">
                   </div>
                   <div class="col-md-8 text-start">
-                    <h5 class="m-4">{{cntxt['article'].user.username}}</h5>
+                    <h5 class="m-4">{{cntxt['article'].user.fullname}}</h5>
                     <div class="ms-4">
                       <!-- Facebook -->
                       <a style="color: #3b5998;" href="#!" role="button"><i class="fab fa-facebook-f fa-lg m-2"></i></a>
@@ -102,7 +102,7 @@ W2Blog-{{cntxt['article'].title}}
                       class="img-fluid rounded-circle shadow-1-strong-mr-2">
                   </div>
                   <div class="col-md-9 text-start">
-                    <h5 class="m-4">{{comment.user.username}} says:</h5>
+                    <h5 class="m-4">@{{comment.user.username}} says:</h5>
 
                     <p class="ms-4 mt-2">{{comment.body}}</p>
                   </div>

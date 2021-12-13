@@ -284,6 +284,10 @@ def edit():
                 body = request.form['body']
                 cur_time = str(time.time())
                 new_article = Article(title=title, subtitle=subtitle ,body=body, image=file_name)
+                for category in Category.query.all():
+                    if 'category'+str(category.id) in request.form:
+                        if str(request.form['category'+str(category.id)]) == str(category.id):
+                            new_article.categories.append(category)
                 us.articles.append(new_article)
                 db.session.add(new_article)
                 db.session.commit()
@@ -292,7 +296,7 @@ def edit():
                 image.save(os.path.join(app.config['UPLOAD_FOLDER'], file_name))
                 return redirect(url_for('index'))
             else:
-                return render_template("message.html", msg="Disallowed file extension!") 
+                return show_message(msg="Disallowed file extension!") 
     return redirect(url_for('lr'))
 
 @app.route("/about")
