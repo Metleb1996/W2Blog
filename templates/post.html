@@ -16,11 +16,11 @@ W2Blog-{{cntxt['article'].title}}
                 <h5 class="text-muted">{{cntxt['article'].subtitle}}</h5>
               </div>
               <div id="articlebody">
-                <img src="{{ url_for('static', filename='img/'+cntxt['article'].image)}}" alt="Image"
+                <img src="{{ url_for('static', filename='media/'+cntxt['article'].image)}}" alt="Image"
                   class="img-fluid rounded my-4 shadow-3-strong">
                 <div class="row">
                   <div class="col-md-6 text-start ps-4">
-                    <img src="{{ url_for('static', filename='img/'+cntxt['article'].user.image)}}" alt="Author"
+                    <img src="{{ url_for('static', filename='media/'+cntxt['article'].user.image)}}" alt="Author"
                       class="rounded-circle shadow-1-strong-mr-2" height="35">
                     <span>Published <u>{{cntxt['article'].get_date()}}</u> by {{cntxt['article'].user.username}}</span>
                   </div>
@@ -68,7 +68,7 @@ W2Blog-{{cntxt['article'].title}}
               <div id="articleauthor">
                 <div class="row m-0 mt-5">
                   <div class="col-md-4">
-                    <img src="{{ url_for('static', filename='img/'+cntxt['article'].user.image)}}" alt="Author"
+                    <img src="{{ url_for('static', filename='media/'+cntxt['article'].user.image)}}" alt="Author"
                       class="img-fluid rounded-circle shadow-1-strong-mr-2">
                   </div>
                   <div class="col-md-8 text-start">
@@ -98,7 +98,7 @@ W2Blog-{{cntxt['article'].title}}
               <div class="comment">
                 <div class="row m-0 mt-3">
                   <div class="col-md-3">
-                    <img src="{{ url_for('static', filename='img/'+comment.user.image)}}" alt="Author"
+                    <img src="{{ url_for('static', filename='media/'+comment.user.image)}}" alt="Author"
                       class="img-fluid rounded-circle shadow-1-strong-mr-2">
                   </div>
                   <div class="col-md-9 text-start">

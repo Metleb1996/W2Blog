@@ -36,7 +36,7 @@ W2Blog
                 <div class="col-md-6">
                   <div class="card mt-2">
                     <div class="bg-image hover-overlay ripple" data-mdb-ripple-color="light">
-                      <img src="{{ url_for('static', filename='img/'+article.image)}}" class="img-fluid" />
+                      <img src="{{ url_for('static', filename='media/'+article.image)}}" class="img-fluid" />
                       <a href="{{url_for('post', id=article.id)}}">
                         <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
                       </a>
