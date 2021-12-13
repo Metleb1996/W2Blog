@@ -9,68 +9,50 @@ W2Blog
 <main>
     <section id="editarticle">
         <div class="container">
-            <div class="row mt-5 pt-5">
-                <h3 class="mb-5 text-center">Create Article</h3>
-                <div class="col-md-9">
-                    <form class="mb-4">
+            <div class="mt-5 pt-5">
+                <h2 class="mb-5 text-center">Create Article</h2>
+                    <form class="mb-4" method="POST" enctype="multipart/form-data" action="{{url_for('edit')}}">
                         <div class="form-outline mb-4">
-                            <input type="text" id="aTitle" class="form-control" />
-                            <label class="form-label" for="aTitle">Title</label>
+                            {{cntxt['eform'].title}}
+                            {{cntxt['eform'].title.label(class="form-label")}}
                         </div>
                         <div class="form-outline mb-4">
-                            <input type="text" id="aSubTitle" class="form-control" />
-                            <label class="form-label" for="aSubtitle">Subtitle</label>
+                            {{cntxt['eform'].subtitle}}
+                            {{cntxt['eform'].subtitle.label(class="form-label")}}
                         </div>
                         <div class="form-outline mb-4">
-                            <input type="file" class="form-control" id="customFile" style="opacity: 0.2;  z-index: -1;"/>
-                            <label class="form-label" for="customFile" style="cursor: pointer;">Hero Image</label>
+                            {{cntxt['eform'].image}}
+                            {{cntxt['eform'].image.label(class="form-label", style="cursor: pointer;")}}
                         </div>
                         <div class="form-outline mb-4">
-                            <textarea class="form-control" id="form4Example3" rows="10"></textarea>
-                            <label class="form-label" for="form4Example3">Article Text</label>
-                          </div>
-                        <button type="submit" class="btn btn-primary btn-block">Publish</button>
+                            {{cntxt['eform'].body}}
+                            {{cntxt['eform'].body.label(class="form-label")}}
+                        </div>
+                        <div>
+                            <div class="text-center m-4">
+                                <h5>Add Categories:</h5>
+                            </div>
+                            {% for c in cntxt['categories'] %}
+                            <div class="m-4 d-inline bg-info rounded p-1">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    value="{{c.id}}"
+                                    name="category{{c.id}}"
+                                    id="category{{c.id}}"
+                                />
+                                <label class="form-check-label" for="category{{c.id}}">
+                                    {{c.name}}
+                                </label>
+                            </div>
+                            {% endfor %}
+                            
+                        </div>
+                        <div>
+                            <input type="hidden" name="csrf_token" id="csrf_token" value="{{cntxt['csrf_token']}}">
+                        </div>
+                        {{cntxt['eform'].submitbutton(class="btn btn-primary btn-block mt-5")}}
                     </form>
-
-                </div>
-                <div class="col-md-3">
-                    <div>
-                        <div class="d-block text-center mb-3">
-                            <h4>Add Categories:</h4>
-                        </div>
-                        <button type="button" class="btn btn-primary btn-rounded m-1">Primary</button>
-                        <button type="button" class="btn btn-secondary btn-rounded m-1">Secondary</button>
-                        <button type="button" class="btn btn-success btn-rounded m-1">Success</button>
-                        <button type="button" class="btn btn-danger btn-rounded m-1">Danger</button>
-                        <button type="button" class="btn btn-warning btn-rounded m-1">Warning</button>
-                        <button type="button" class="btn btn-info btn-rounded" m-1>Info</button>
-                        <button type="button" class="btn btn-primary btn-rounded m-1">Primary</button>
-                        <button type="button" class="btn btn-secondary btn-rounded m-1">Secondary</button>
-                        <button type="button" class="btn btn-success btn-rounded m-1">Success</button>
-                        <button type="button" class="btn btn-danger btn-rounded m-1">Danger</button>
-                        <button type="button" class="btn btn-warning btn-rounded m-1">Warning</button>
-                        <button type="button" class="btn btn-info btn-rounded m-1">Info</button>
-                        <button type="button" class="btn btn-light btn-rounded m-1">Light</button>
-                        <button type="button" class="btn btn-dark btn-rounded m-1">Dark</button>
-                        <button type="button" class="btn btn-light btn-rounded m-1">Light</button>
-                        <button type="button" class="btn btn-dark btn-rounded m-1">Dark</button>
-                        <button type="button" class="btn btn-primary btn-rounded">Primary</button>
-                        <button type="button" class="btn btn-secondary btn-rounded m-1">Secondary</button>
-                        <button type="button" class="btn btn-success btn-rounded m-1">Success</button>
-                        <button type="button" class="btn btn-danger btn-rounded m-1">Danger</button>
-                        <button type="button" class="btn btn-primary btn-rounded m-1">Primary</button>
-                        <button type="button" class="btn btn-secondary btn-rounded m-1">Secondary</button>
-                        <button type="button" class="btn btn-success btn-rounded m-1">Success</button>
-                        <button type="button" class="btn btn-danger btn-rounded m-1">Danger</button>
-                        <button type="button" class="btn btn-warning btn-rounded m-1">Warning</button>
-                        <button type="button" class="btn btn-info btn-rounded m-1">Info</button>
-                        <button type="button" class="btn btn-light btn-rounded m-1">Light</button>
-                        <button type="button" class="btn btn-dark btn-rounded m-1">Dark</button>
-                        <button type="button" class="btn btn-warning btn-rounded m-1">Warning</button>
-                        <button type="button" class="btn btn-info btn-rounded m-1">Info</button>
-                        <button type="button" class="btn btn-light btn-rounded m-1">Light</button>
-                        <button type="button" class="btn btn-dark btn-rounded m-1">Dark</button>
-                    </div>
                 </div>
             </div>
         </div>
