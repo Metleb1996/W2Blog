@@ -1,16 +1,23 @@
 import datetime
+import time
 import string
 import re
 import random
+import os
+from werkzeug.utils import secure_filename
 from flask import Flask, render_template, redirect, url_for, session, request, abort
 from flask_sqlalchemy import SQLAlchemy
-from wtforms import Form, BooleanField, StringField, PasswordField, EmailField, SubmitField, validators
+from wtforms import Form, BooleanField, StringField, PasswordField, EmailField, SubmitField, TextAreaField, validators
 from flask_wtf.file import FileField, FileRequired
 
+M_EXTENTIONS = set(['jpg','png', 'jpeg', 'gif', 'bmp'])
+M_UPLOAD_FOLDER = "static/media"
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///vt.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+app.config['UPLOAD_FOLDER'] = M_UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024 #uploaded file max size
 app.secret_key = b'HbfGMYwEOnP3oVEbbnPuoYxx1FHPdLSoNKku3qmKfWUjt6tsLdm3USo5k7JRWmXNiGIjpyXtm7DZ1DbAYAzn0g8LmerBW1DsaeSf'
 db = SQLAlchemy(app)
 
@@ -26,7 +33,7 @@ class Article(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(80), nullable=False)
     subtitle = db.Column(db.String(80), nullable=False)
-    image = db.Column(db.String(80), nullable=False, default="default_article_image.png")
+    image = db.Column(db.String(180), nullable=False, default="default_article_image.png")
     body = db.Column(db.Text, nullable=False)
     pub_date = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
@@ -50,6 +57,7 @@ class Category(db.Model):
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.Integer, default=0) # 0, 1, 2, 3, 4, 5  (0-quest, 5-super_admin)
+    verified = db.Column(db.Integer, default=-1) # approved by {admin.id}
     username = db.Column(db.String(30), unique=True, nullable=False)
     fullname = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
@@ -84,6 +92,18 @@ class LoginForm(Form):
     password = PasswordField('Password', [validators.DataRequired(), validators.Length(min=10, max=35)], render_kw={"class":"form-control","maxlength":"35","minlength":"10"})
     rememberme = BooleanField(" Remember me ", render_kw={"class":"form-check-input","checked":"checked","value":"1"})
     submitbutton = SubmitField("Login")
+
+
+class EditForm(Form): 
+    title = StringField("Title", [validators.DataRequired(), validators.Length(min=5, max=80)], render_kw={"class":"form-control","maxlength":"80","minlength":"5"})
+    subtitle = StringField("Subtitle", [validators.DataRequired(), validators.Length(min=5, max=80)], render_kw={"class":"form-control","maxlength":"80","minlength":"5"})
+    body = TextAreaField("Article Text", [validators.DataRequired(), validators.Length(min=3, max=536870912)], render_kw={"class":"form-control","maxlength":"536870912","minlength":"3", "rows":10})
+    image = FileField("Hero Image", validators=[FileRequired()], render_kw={"class":"form-control", "style":"opacity: 0.2;  z-index: -1;"})
+    submitbutton = SubmitField("Publish")
+
+def ext_cont(file_name):
+   return '.' in file_name and \
+   file_name.rsplit('.', 1)[1].lower() in M_EXTENTIONS
 
 def csrf_text(size=32, chars=string.ascii_uppercase + string.ascii_lowercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
@@ -232,15 +252,48 @@ def fpass():
     w2b_context.update({"user":{"user_id":-1}}) 
     return abort(404)
 
-@app.route("/edit")
+@app.route("/edit", methods=['POST','GET'])
 def edit():
     w2b_context.clear()
     if "user_id" in session:
         user = User.query.filter_by(id=session['user_id']).first()
-        w2b_context.update({"user":{"user_id":session['user_id'], "user":user}})
-    else:
-        w2b_context.update({"user":{"user_id":-1}}) 
-    return render_template("edit.html", cntxt=w2b_context)
+        eform = EditForm()
+        if request.method == "GET":
+            csrf_token = csrf_text()
+            session["csrf_token"] = csrf_token
+            w2b_context.update({"user":{"user_id":session['user_id'], "user":user}, "csrf_token":csrf_token, "eform":eform, "categories":Category.query.all()})
+            return render_template("edit.html", cntxt=w2b_context)
+        if request.method == "POST" and  request.form['csrf_token'] == session["csrf_token"]:
+            if "image" not in request.files:
+                return show_message(msg="Image file not found!")
+            rules = {"title":{"min":5,"max":80,"type":"text"}, \
+                    "subtitle":{"min":5,"max":80,"type":"text"}, \
+                    "body":{"min":3,"max":536870912,"type":"text"}}
+            success, msg = form_checker(request.form, rules)
+            if not success:
+                return show_message(msg=msg) 
+            image = request.files["image"]
+            if image.filename == '':
+                return show_message(msg="Image file not named!")
+            if image and ext_cont(image.filename):
+                file_name = secure_filename(image.filename)
+                file_name = "{}-{}".format(datetime.datetime.strftime(datetime.datetime.utcnow(), "%s"),file_name)
+                us = User.query.filter_by(id=session["user_id"]).first()
+                title = request.form["title"]
+                subtitle = request.form['subtitle']
+                body = request.form['body']
+                cur_time = str(time.time())
+                new_article = Article(title=title, subtitle=subtitle ,body=body, image=file_name)
+                us.articles.append(new_article)
+                db.session.add(new_article)
+                db.session.commit()
+                if not os.path.exists(M_UPLOAD_FOLDER):
+                    os.mkdir(os.path.join("./static", "media"))
+                image.save(os.path.join(app.config['UPLOAD_FOLDER'], file_name))
+                return redirect(url_for('index'))
+            else:
+                return render_template("message.html", msg="Disallowed file extension!") 
+    return redirect(url_for('lr'))
 
 @app.route("/about")
 def about():
