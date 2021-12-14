@@ -327,7 +327,8 @@ def gallery():
         w2b_context.update({"user":{"user_id":session['user_id'], "user":user}})
     else:
         w2b_context.update({"user":{"user_id":-1}}) 
-    return abort(404)
+    w2b_context.update({"articles":Article.query.all()})
+    return render_template("gallery.html", cntxt=w2b_context)
 
 if __name__ == "__main__":
     app.run(debug=True)
