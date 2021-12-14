@@ -11,7 +11,7 @@ from wtforms import Form, BooleanField, StringField, PasswordField, EmailField, 
 from flask_wtf.file import FileField, FileRequired
 
 M_EXTENTIONS = set(['jpg','png', 'jpeg', 'gif', 'bmp'])
-M_UPLOAD_FOLDER = "static/media"
+M_UPLOAD_FOLDER = "{}/static/media".format(os.getcwd())
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///vt.db'
@@ -292,7 +292,7 @@ def edit():
                 db.session.add(new_article)
                 db.session.commit()
                 if not os.path.exists(M_UPLOAD_FOLDER):
-                    os.mkdir(os.path.join("./static", "media"))
+                    os.mkdir(os.path.join("{}/static".format(os.getcwd()), "media"))
                 image.save(os.path.join(app.config['UPLOAD_FOLDER'], file_name))
                 return redirect(url_for('index'))
             else:
