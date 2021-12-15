@@ -54,6 +54,16 @@ class Category(db.Model):
     def __repr__(self):
         return '<Category %r>' % self.name
 
+class SocialLink(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    sname = db.Column(db.String(25), nullable=False)
+    slink = db.Column(db.String(150), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    def __repr__(self):
+        return '<SocialLink %r>' % self.name
+
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.Integer, default=0) # 0, 1, 2, 3, 4, 5  (0-quest, 5-super_admin)
@@ -67,6 +77,7 @@ class User(db.Model):
     last_login = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
     articles = db.relationship('Article', backref='user')
     comments = db.relationship('Comment', backref='user')
+    sociallinks = db.relationship('SocialLink', backref='user')
 
     def __repr__(self):
         return '<User %r>' % self.username
