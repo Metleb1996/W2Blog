@@ -25,21 +25,9 @@ W2Blog-{{cntxt['article'].title}}
                     <span>Published <u>{{cntxt['article'].get_date()}}</u> by @{{cntxt['article'].user.username}}</span>
                   </div>
                   <div class="col-md-6 text-end pe-4">
-                    <!-- Facebook -->
-                    <a class="btn btn-primary btn-rounded" style="background-color: #3b5998;" href="#!" role="button">
-                      <i class="fab fa-facebook-f"></i></a>
-
-                    <!-- Twitter -->
-                    <a class="btn btn-primary btn-rounded" style="background-color: #55acee;" href="#!" role="button">
-                      <i class="fab fa-twitter"></i></a>
-
-                    <!-- Instagram -->
-                    <a class="btn btn-primary btn-rounded" style="background-color: #ac2bac;" href="#!" role="button">
-                      <i class="fab fa-instagram"></i></a>
-
-                    <!-- Linkedin -->
-                    <a class="btn btn-primary btn-rounded" style="background-color: #0082ca;" href="#!" role="button">
-                      <i class="fab fa-linkedin-in"></i></a>
+                    {% for social in cntxt['article'].user.sociallinks %}
+                      {{socialbuttons.rounded_social(social.sname, social.slink)}}
+                    {% endfor %}
                   </div>
                 </div>
                 <hr />
@@ -51,18 +39,10 @@ W2Blog-{{cntxt['article'].title}}
                   <b>
                     <h5>Share with your friends:</h5>
                   </b> <br />
-                  <!-- Whatsapp -->
-                  <a class="btn btn-primary mx-2" style="background-color: #25d366;" href="#!" role="button"><i
-                      class="fab fa-whatsapp"></i></a>
-                  <!-- Facebook -->
-                  <a class="btn btn-primary mx-2" style="background-color: #3b5998;" href="#!" role="button"><i
-                      class="fab fa-facebook-f"></i></a>
-                  <!-- Twitter -->
-                  <a class="btn btn-primary mx-2" style="background-color: #55acee;" href="#!" role="button"><i
-                      class="fab fa-twitter"></i></a>
-                  <!-- Instagram -->
-                  <a class="btn btn-primary mx-2" style="background-color: #ac2bac;" href="#!" role="button"><i
-                      class="fab fa-instagram"></i></a>
+                  {{socialbuttons.sqr_social("whatsapp", "whatsapp://send?text="+request.url)}}
+                  {{socialbuttons.sqr_social("facebook", "https://www.facebook.com/sharer/sharer.php?u="+request.url)}}
+                  {{socialbuttons.sqr_social("instagram", "#"+request.url)}}
+                  {{socialbuttons.sqr_social("twitter", "https://twitter.com/intent/tweet?text="+cntxt['article'].title+"&url="+request.url)}}
                 </div>
               </div>
               <div id="articleauthor">
@@ -74,17 +54,9 @@ W2Blog-{{cntxt['article'].title}}
                   <div class="col-md-8 text-start">
                     <h5 class="m-4">{{cntxt['article'].user.fullname}}</h5>
                     <div class="ms-4">
-                      <!-- Facebook -->
-                      <a style="color: #3b5998;" href="#!" role="button"><i class="fab fa-facebook-f fa-lg m-2"></i></a>
-
-                      <!-- Twitter -->
-                      <a style="color: #55acee;" href="#!" role="button"><i class="fab fa-twitter fa-lg m-2"></i></a>
-
-                      <!-- Google -->
-                      <a style="color: #dd4b39;" href="#!" role="button"><i class="fab fa-google fa-lg m-2"></i></a>
-
-                      <!-- Instagram -->
-                      <a style="color: #ac2bac;" href="#!" role="button"><i class="fab fa-instagram fa-lg m-2"></i></a>
+                      {% for social in cntxt['article'].user.sociallinks %}
+                      {{socialbuttons.flat_social(social.sname, social.slink)}}
+                      {% endfor %}
                     </div>
 
                     <p class="ms-4 mt-2">{{cntxt['article'].user.about_me}}</p>
