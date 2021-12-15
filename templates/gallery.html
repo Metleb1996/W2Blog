@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title_content %}
+W2Blog - Gallery
+{% endblock %}
+
+{% block main_content %}
+
+<main>
+    <section id="gallery">
+        <div class="mt-5 pt-5">
+            <div class="row mx-2">
+                {% for article in cntxt['articles'] %}
+                <div class="col-md-4">
+                    <div class="m-1">
+                        <div class="bg-image ripple" data-mdb-ripple-color="light">
+                            <img src="{{url_for('static', filename='media/'+article.image)}}" class="w-100 rounded" />
+                            <a href="#!" data-mdb-toggle="modal" data-mdb-target="#modale{{article.id}}">
+                                <div class="mask" style="background-color: rgba(0, 0, 0, 0.4)">
+                                    <div class="d-flex justify-content-center align-items-center h-100">
+                                        <p class="text-white mb-0">{{article.title[:12]}}...</p>
+                                    </div>
+                                </div>
+                                <div class="hover-overlay">
+                                    <div class="mask" style="background-color: rgba(18, 102, 241, 0.5)"></div>
+                                </div>
+                            </a>
+                            <div class="modal fade" id="modale{{article.id}}" tabindex="-1" aria-labelledby="exampleModalLabel"
+                                aria-hidden="true">
+                                <div class="modal-dialog modal-xl">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="exampleModalLabel">{{article.title}}...</h5>
+                                            <button type="button" class="btn-close" data-mdb-dismiss="modal"
+                                                aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="p-1">
+                                                <img src="{{url_for('static', filename='media/'+article.image)}}" alt="{{article.title}}" class="img-fluid">
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <a class="btn btn-rounded btn-primary" href="{{url_for('post', id=article.id)}}">Read More</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+</main>
+
+{% endblock %}
