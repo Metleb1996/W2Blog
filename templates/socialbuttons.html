@@ -153,3 +153,44 @@
 {% endif %}
 {% endmacro %}
 <!-- Flat Icons -->
+
+
+<!-- Block Icons -->
+{% macro block_social(s_name, s_link) %}
+{% if s_name=="facebook" %}
+<!-- Facebook -->
+<a class="btn btn-primary btn-rounded btn-block" style="background-color: #3b5998;" href="{{s_link}}" role="button">
+    <i class="fab fa-facebook-f me-2"></i> Facebook</a>
+{% endif %}
+{% if s_name=="twitter" %}
+<!-- Twitter -->
+<a class="btn btn-primary btn-rounded btn-block" style="background-color: #55acee;" href="{{s_link}}" role="button">
+    <i class="fab fa-twitter me-2"></i> Twitter</a>
+{% endif %}
+{% if s_name=="instagram" %}
+<!-- Instagram -->
+<a class="btn btn-primary btn-rounded btn-block" style="background-color: #ac2bac;" href="{{s_link}}" role="button">
+    <i class="fab fa-instagram me-2"></i> Instagram</a>
+{% endif %}
+{% if s_name=="linkedin" %}
+<!-- Linkedin -->
+<a class="btn btn-primary btn-rounded btn-block" style="background-color: #0082ca;" href="{{s_link}}" role="button">
+    <i class="fab fa-linkedin-in me-2"></i> Linkedin</a>
+{% endif %}
+{% if s_name=="google" %}
+<!-- Google -->
+<a class="btn btn-primary btn-rounded btn-block" style="background-color: #dd4b39;" href="{{s_link}}" role="button"><i
+        class="fab fa-google me-2"></i> Google</a>
+{% endif %}
+{% if s_name=="github" %}
+<!-- Github -->
+<a class="btn btn-primary btn-rounded btn-block" style="background-color: #333333;" href="{{s_link}}" role="button"><i
+        class="fab fa-github me-2"></i> Github</a>
+{% endif %}
+{% if s_name=="whatsapp" %}
+<!-- Whatsapp -->
+<a class="btn btn-primary btn-rounded btn-block" style="background-color: #25d366;" href="{{s_link}}" role="button"><i
+        class="fab fa-whatsapp me-2"></i> Whatsapp</a>
+{% endif %}
+{% endmacro %}
+<!-- Block Icons -->
