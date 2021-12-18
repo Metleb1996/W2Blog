@@ -7,6 +7,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
   <meta http-equiv="x-ua-compatible" content="ie=edge" />
   <title>{% block title_content %}{% endblock %}</title>
+  <!-- Search Engine -->
+  <meta name="description" content="Scientific articles, news and others...">
+  <meta name="image" content="/static/img/android-chrome-512x512.png">
+  <!-- Schema.org for Google -->
+  <meta itemprop="name" content="W2Blog">
+  <meta itemprop="description" content="Scientific articles, news and others...">
+  <meta itemprop="image" content="/static/img/android-chrome-512x512.png">
+  <!-- Open Graph general (Facebook, Pinterest & LinkedIn) -->
+  <meta property="og:title" content="W2Blog">
+  <meta property="og:description" content="Scientific articles, news and others...">
+  <meta property="og:image" content="/static/img/android-chrome-512x512.png">
+  <meta property="og:url" content="my_url_here">
+  <meta property="og:site_name" content="World2Blog">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:type" content="website">
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary">
+  <meta property="twitter:title" content="W2Blog">
+  <meta property="twitter:description" content="Scientific articles, news and others...">
+  <meta property="twitter:image:src" content="/static/img/android-chrome-512x512.png">
   <!-- MDB icon -->
   <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='img/apple-touch-icon.png') }}">
   <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='img/favicon-32x32.png') }}">
@@ -43,10 +63,12 @@
           <!-- Left links -->
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
-              <a class="nav-link{% if request.path == '/about' %} active{% endif %}" href="{{url_for('about')}}">About</a>
+              <a class="nav-link{% if request.path == '/about' %} active{% endif %}"
+                href="{{url_for('about')}}">About</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link{% if request.path == '/gallery' %} active{% endif %}" href="{{url_for('gallery')}}">Gallery</a>
+              <a class="nav-link{% if request.path == '/gallery' %} active{% endif %}"
+                href="{{url_for('gallery')}}">Gallery</a>
             </li>
             <li class="nav-item">
               <a class="nav-link{% if request.path == '/lr' %} active{% endif %}" href="{{url_for('lr')}}">Login</a>
@@ -80,8 +102,9 @@
           <!-- Avatar -->
           <a class="dropdown-toggle d-flex align-items-center hidden-arrow" href="#" id="navbarDropdownMenuLink"
             role="button" data-mdb-toggle="dropdown" aria-expanded="false">
-            <img src="{{url_for('static', filename='media/'+cntxt['user']['user'].image)}}" class="rounded-circle" height="25" alt=""
-              loading="lazy" data-mdb-toggle="tooltip" data-mdb-placement="top" title="{{cntxt['user']['user'].fullname}}"/>
+            <img src="{{url_for('static', filename='media/'+cntxt['user']['user'].image)}}" class="rounded-circle"
+              height="25" alt="" loading="lazy" data-mdb-toggle="tooltip" data-mdb-placement="top"
+              title="{{cntxt['user']['user'].fullname}}" />
           </a>
           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
             <li>
@@ -106,8 +129,8 @@
     {% endblock %}
     <!-- Background image -->
   </header>
-{% block main_content %}
-{% endblock %}
+  {% block main_content %}
+  {% endblock %}
   <footer class="bg-light text-center text-white">
     <!-- Grid container -->
     <div class="container p-4 pb-0">
