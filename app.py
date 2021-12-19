@@ -61,7 +61,7 @@ class SocialLink(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     def __repr__(self):
-        return '<SocialLink %r>' % self.name
+        return '<SocialLink %r>' % self.sname
 
 
 class User(db.Model):
@@ -264,7 +264,8 @@ def fpass():
     return abort(404)
 
 @app.route("/edit", methods=['POST','GET'])
-def edit():
+@app.route("/edit/<int:id>")
+def edit(id=None):
     w2b_context.clear()
     if "user_id" in session:
         user = User.query.filter_by(id=session['user_id']).first()
@@ -273,6 +274,14 @@ def edit():
             csrf_token = csrf_text()
             session["csrf_token"] = csrf_token
             w2b_context.update({"user":{"user_id":session['user_id'], "user":user}, "csrf_token":csrf_token, "eform":eform, "categories":Category.query.all()})
+            if id!=None and Article.query.filter_by(id=id).count()>0:
+                article = Article.query.filter_by(id=id).first()
+                if article.user_id == session['user_id']:
+                    session['article_id'] = article.id
+                    eform.title.data=article.title
+                    eform.subtitle.data=article.subtitle
+                    eform.body.data=article.body
+                    eform.image.validators=[]
             return render_template("edit.html", cntxt=w2b_context)
         if request.method == "POST" and  request.form['csrf_token'] == session["csrf_token"]:
             if "image" not in request.files:
@@ -284,51 +293,62 @@ def edit():
             if not success:
                 return show_message(msg=msg) 
             image = request.files["image"]
-            if image.filename == '':
+            if image.filename == '' and 'article_id' not in session:
                 return show_message(msg="Image file not named!")
             if image and ext_cont(image.filename):
                 file_name = secure_filename(image.filename)
                 file_name = "{}-{}".format(datetime.datetime.strftime(datetime.datetime.utcnow(), "%s"),file_name)
-                us = User.query.filter_by(id=session["user_id"]).first()
-                title = request.form["title"]
-                subtitle = request.form['subtitle']
-                body = request.form['body']
-                cur_time = str(time.time())
+            elif 'article_id' not in session:
+                return show_message(msg="Disallowed file extension!")
+            else:
+                filename = None
+            us = User.query.filter_by(id=session["user_id"]).first()
+            title = request.form["title"]
+            subtitle = request.form['subtitle']
+            body = request.form['body']
+            cur_time = str(time.time())
+            if 'article_id' in session:
+                new_article = Article.query.filter_by(id=int(session['article_id'])).first()
+                new_article.categories.clear()
+                new_article.title=title
+                new_article.subtitle=subtitle
+                new_article.body=body
+                if file_name!=None:
+                    new_article.image=file_name
+            else:
                 new_article = Article(title=title, subtitle=subtitle ,body=body, image=file_name)
-                for category in Category.query.all():
-                    if 'category'+str(category.id) in request.form:
-                        if str(request.form['category'+str(category.id)]) == str(category.id):
-                            new_article.categories.append(category)
-                us.articles.append(new_article)
+            for category in Category.query.all():
+                if 'category'+str(category.id) in request.form:
+                    if str(request.form['category'+str(category.id)]) == str(category.id):
+                        new_article.categories.append(category)
+            us.articles.append(new_article)
+            if 'article_id' not in session:
                 db.session.add(new_article)
-                db.session.commit()
+            db.session.commit()
+            if file_name!=None:
                 if not os.path.exists(M_UPLOAD_FOLDER):
                     os.mkdir(os.path.join("{}/static".format(os.getcwd()), "media"))
                 image.save(os.path.join(app.config['UPLOAD_FOLDER'], file_name))
-                return redirect(url_for('index'))
-            else:
-                return show_message(msg="Disallowed file extension!") 
+            return redirect(url_for('index'))    
     return redirect(url_for('lr'))
 
-@app.route("/about")
-def about():
+@app.route("/user", methods=['POST','GET'])
+def user():
     w2b_context.clear()
     if "user_id" in session:
         user = User.query.filter_by(id=session['user_id']).first()
-        w2b_context.update({"user":{"user_id":session['user_id'], "user":user}})
-    else:
-        w2b_context.update({"user":{"user_id":-1}}) 
-    return abort(404)
-
-@app.route("/projects")
-def projects():
-    w2b_context.clear()
-    if "user_id" in session:
-        user = User.query.filter_by(id=session['user_id']).first()
-        w2b_context.update({"user":{"user_id":session['user_id'], "user":user}})
-    else:
-        w2b_context.update({"user":{"user_id":-1}}) 
-    return abort(404)
+        if request.method == 'GET':
+            csrf_token = csrf_text()
+            all_socials = {'facebook': None, 'instagram': None, 'twitter': None, 'github': None, 'google': None, 'whatsapp': None, 'linkedin': None}
+            session["csrf_token"] = csrf_token
+            w2b_context.update({"user":{"user_id":session['user_id'], "user":user}, "csrf_token":csrf_token})
+            for social in user.sociallinks:
+                all_socials.update({social.sname:social.slink})
+            w2b_context.update({"categories":Category.query.all(), "socials":all_socials})
+            return render_template("user.html", cntxt=w2b_context)
+        if request.method == "POST" and  request.form['csrf_token'] == session["csrf_token"]:
+            pass
+    return redirect(url_for('lr'))
 
 @app.route("/gallery")
 def gallery():
