@@ -31,6 +31,7 @@ article_categories = db.Table(
 
 class Article(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    verified = db.Column(db.Integer, default=-1) # approved by {admin.id}
     title = db.Column(db.String(80), nullable=False)
     subtitle = db.Column(db.String(80), nullable=False)
     image = db.Column(db.String(180), nullable=False, default="default_article_image.png")
@@ -66,8 +67,7 @@ class SocialLink(db.Model):
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    type = db.Column(db.Integer, default=0) # 0, 1, 2, 3, 4, 5  (0-quest, 5-super_admin)
-    verified = db.Column(db.Integer, default=-1) # approved by {admin.id}
+    usertype = db.Column(db.Integer, default=0) # 0, 1, 2, 3, 4, 5  (0-quest, 5-super_admin)
     username = db.Column(db.String(30), unique=True, nullable=False)
     fullname = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
@@ -126,6 +126,7 @@ def is_email(email):
     return False
 
 def show_message(msg:str):
+    session.pop('article_id', None)
     w2b_context.clear()
     if "user_id" in session:
         user = User.query.filter_by(id=session['user_id']).first()
@@ -276,7 +277,7 @@ def edit(id=None):
             w2b_context.update({"user":{"user_id":session['user_id'], "user":user}, "csrf_token":csrf_token, "eform":eform, "categories":Category.query.all()})
             if id!=None and Article.query.filter_by(id=id).count()>0:
                 article = Article.query.filter_by(id=id).first()
-                if article.user_id == session['user_id']:
+                if article.user.id == session['user_id']:
                     session['article_id'] = article.id
                     eform.title.data=article.title
                     eform.subtitle.data=article.subtitle
@@ -329,6 +330,7 @@ def edit(id=None):
                 if not os.path.exists(M_UPLOAD_FOLDER):
                     os.mkdir(os.path.join("{}/static".format(os.getcwd()), "media"))
                 image.save(os.path.join(app.config['UPLOAD_FOLDER'], file_name))
+            session.pop('article_id', None)
             return redirect(url_for('index'))    
     return redirect(url_for('lr'))
 
@@ -345,9 +347,55 @@ def user():
             for social in user.sociallinks:
                 all_socials.update({social.sname:social.slink})
             w2b_context.update({"categories":Category.query.all(), "socials":all_socials})
+            if user.usertype == 5 and Article.query.filter_by(verified=-1).count() > 0:
+                w2b_context.update({"v_articles":Article.query.filter_by(verified=-1)})
+            else:
+                w2b_context.update({"v_articles":[]})
             return render_template("user.html", cntxt=w2b_context)
         if request.method == "POST" and  request.form['csrf_token'] == session["csrf_token"]:
-            pass
+            if "form_name" in request.form and len(request.form['form_name']) > 0:
+                if request.form['form_name'] == 'change_picture':
+                    image = request.files["new_avatar"]
+                    if image.filename != '':
+                        if image and ext_cont(image.filename):
+                            file_name = secure_filename(image.filename)
+                            file_name = "{}-{}".format(datetime.datetime.strftime(datetime.datetime.utcnow(), "%s"),file_name)
+                            user.image = file_name
+                            db.session.commit()
+                            if not os.path.exists(M_UPLOAD_FOLDER):
+                                os.mkdir(os.path.join("{}/static".format(os.getcwd()), "media"))
+                            image.save(os.path.join(app.config['UPLOAD_FOLDER'], file_name))
+                        else:
+                            show_message(msg="This file format is not supported.")
+                    else:
+                        show_message(msg="Filename cannot be empty!")
+                if request.form['form_name'] == "change_about_me":
+                    if "about_me" in request.form:
+                        about_me = request.form['about_me']
+                        user.about_me = about_me
+                        db.session.commit()
+                if request.form['form_name'] == "add_social":
+                    if "form_name_desc" in request.form and len(request.form['form_name_desc']) > 0:
+                        if "link_url" in request.form and len(request.form['link_url']) > 0:
+                            sname = request.form['form_name_desc']
+                            slink = request.form['link_url']
+                            social = SocialLink(sname=sname, slink=slink)
+                            user.sociallinks.append(social)
+                            db.session.add(social)
+                            db.session.commit()
+                        else:
+                            show_message(msg="Your social network address is wrong.")
+                    else:
+                        show_message(msg="Something went wrong. Try again.")
+                if request.form['form_name'] == "add_category":
+                    if "new_category" in request.form and len(request.form['new_category']) > 0:
+                        new_name = request.form['new_category']
+                        if Category.query.filter_by(name=new_name).count() > 0:
+                            show_message(msg="This category already exists.")
+                        category = Category(name=new_name)
+                        db.session.add(category)
+                        db.session.commit()
+        return redirect(url_for('index'))
     return redirect(url_for('lr'))
 
 @app.route("/gallery")
