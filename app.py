@@ -49,7 +49,7 @@ class Article(db.Model):
 
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(25), nullable=False)
+    name = db.Column(db.String(25), unique=True, nullable=False)
     articles = db.relationship("Article", secondary=article_categories, back_populates="categories")
 
     def __repr__(self):
@@ -366,9 +366,9 @@ def user():
                                 os.mkdir(os.path.join("{}/static".format(os.getcwd()), "media"))
                             image.save(os.path.join(app.config['UPLOAD_FOLDER'], file_name))
                         else:
-                            show_message(msg="This file format is not supported.")
+                            return  show_message(msg="This file format is not supported.")
                     else:
-                        show_message(msg="Filename cannot be empty!")
+                        return  show_message(msg="Filename cannot be empty!")
                 if request.form['form_name'] == "change_about_me":
                     if "about_me" in request.form:
                         about_me = request.form['about_me']
@@ -384,17 +384,31 @@ def user():
                             db.session.add(social)
                             db.session.commit()
                         else:
-                            show_message(msg="Your social network address is wrong.")
+                            return  show_message(msg="Your social network address is wrong.")
                     else:
-                        show_message(msg="Something went wrong. Try again.")
+                        return  show_message(msg="Something went wrong. Try again.")
                 if request.form['form_name'] == "add_category":
                     if "new_category" in request.form and len(request.form['new_category']) > 0:
                         new_name = request.form['new_category']
-                        if Category.query.filter_by(name=new_name).count() > 0:
-                            show_message(msg="This category already exists.")
-                        category = Category(name=new_name)
-                        db.session.add(category)
-                        db.session.commit()
+                        c = Category.query.filter_by(name=new_name).first() ;print(c)
+                        if c:
+                            return  show_message(msg="This category already exists.")
+                        else:
+                            category = Category(name=new_name) ;print(category)
+                            db.session.add(category)
+                            db.session.commit()
+                if request.form['form_name'] == "delete_category" and user.usertype == 5:
+                    if "form_name_desc" in request.form and len(request.form['form_name_desc']) > 0:
+                        c_name = request.form['form_name_desc']
+                        c = Category.query.filter_by(name=c_name).first() ;print(c)
+                        if c:
+                            for article in Article.query.all():
+                                if c in article.categories:
+                                    article.categories.remove(c)
+                            db.session.delete(c)
+                            db.session.commit()
+                        else:
+                            return  show_message(msg="This category not found.")
         return redirect(url_for('index'))
     return redirect(url_for('lr'))
 
