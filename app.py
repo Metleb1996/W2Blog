@@ -6,6 +6,7 @@ import random
 import os
 from werkzeug.utils import secure_filename
 from flask import Flask, render_template, redirect, url_for, session, request, abort
+from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
 from wtforms import Form, BooleanField, StringField, PasswordField, EmailField, SubmitField, TextAreaField, validators
 from flask_wtf.file import FileField, FileRequired
@@ -20,6 +21,7 @@ app.config['UPLOAD_FOLDER'] = M_UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024 #uploaded file max size
 app.secret_key = b'HbfGMYwEOnP3oVEbbnPuoYxx1FHPdLSoNKku3qmKfWUjt6tsLdm3USo5k7JRWmXNiGIjpyXtm7DZ1DbAYAzn0g8LmerBW1DsaeSf'
 db = SQLAlchemy(app)
+bcrypt = Bcrypt(app)
 
 w2b_context = {}
 
@@ -256,8 +258,10 @@ def lor(lr=None):
             user_pass = request.form['password']
             if User.query.filter_by(email=user_email).count()>0:
                 us = User.query.filter_by(email=user_email).first()
-                if us.password == user_pass:
+                if bcrypt.check_password_hash(us.password.encode('utf-8'), user_pass):
                     session['user_id'] = us.id
+                    us.last_login = datetime.datetime.utcnow
+                    db.session.commit()
                     return redirect(url_for('index'))
                 else:
                     return show_message(msg="Passwords do not match!") 
@@ -280,6 +284,7 @@ def lor(lr=None):
             if not(User.query.filter_by(email=user_email).count()>0):
                 if not(User.query.filter_by(username=user_name).count()>0):
                     if user_pass == user_confirm:
+                        user_pass = bcrypt.generate_password_hash(user_pass).decode("utf-8")
                         new_user = User(username=user_name, fullname=full_name, email=user_email, password=user_pass)
                         db.session.add(new_user)
                         db.session.commit()
