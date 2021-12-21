@@ -260,7 +260,7 @@ def lor(lr=None):
                 us = User.query.filter_by(email=user_email).first()
                 if bcrypt.check_password_hash(us.password.encode('utf-8'), user_pass):
                     session['user_id'] = us.id
-                    us.last_login = datetime.datetime.utcnow
+                    us.last_login = datetime.datetime.utcnow()
                     db.session.commit()
                     return redirect(url_for('index'))
                 else:
