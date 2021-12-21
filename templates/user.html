@@ -132,7 +132,11 @@
                                             </p>
                                             <a href="{{url_for('post', id=article.id)}}" class="btn btn-primary m-1">Read</a>
                                             <a href="{{url_for('edit', id=article.id)}}" class="btn btn-warning m-1">Edit</a>
-                                            <!-- <a href="#!" class="btn btn-danger m-1">Delete</a> -->
+                                            <form action="{{url_for('post', id=article.id)}}" method="POST" class="m-0 p-0">
+                                                <input type="hidden" name="csrf_token" value="{{cntxt['csrf_token']}}">
+                                                <input type="hidden" name="form_name" value="delete_article">
+                                                <button type="submit" class="btn btn-danger m-1">Delete</button>
+                                            </form>
                                         </div>
                                     </div>
                                 </div>
@@ -210,8 +214,16 @@
                                                 {{v_article.body[:25]}}...
                                             </p>
                                             <a href="{{url_for('post', id=v_article.id)}}" class="btn btn-primary m-1">Read</a>
-                                            <!-- <a href="#!" class="btn btn-success m-1">Verify</a> -->
-                                            <!-- <a href="#!" class="btn btn-danger m-1">Delete</a> -->
+                                            <form action="{{url_for('post', id=v_article.id)}}" method="POST" class="m-0 p-0">
+                                                <input type="hidden" name="csrf_token" value="{{cntxt['csrf_token']}}">
+                                                <input type="hidden" name="form_name" value="verify_article">
+                                                <button type="submit" class="btn btn-success m-1">Verify</button>
+                                            </form>
+                                            <form action="{{url_for('post', id=v_article.id)}}" method="POST" class="m-0 p-0">
+                                                <input type="hidden" name="csrf_token" value="{{cntxt['csrf_token']}}">
+                                                <input type="hidden" name="form_name" value="delete_article">
+                                                <button type="submit" class="btn btn-danger m-1">Delete</button>
+                                            </form>
                                         </div>
                                         <div class="card-footer">
                                             <div class="text-center text-muted">Author: {{v_article.user.username}}</div>

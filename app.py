@@ -161,32 +161,56 @@ def index(cat_id=None):
         w2b_context.update({"user":{"user_id":-1}}) 
     w2b_context.update({"categories":Category.query.all()})
     if cat_id == None :
-        w2b_context.update({"articles":Article.query.all(), "category":-1})
+        w2b_context.update({"articles":Article.query.filter(Article.verified>0), "category":-1})
     else:
         articles = []
         if Category.query.filter_by(id=cat_id).count() > 0:
             category = Category.query.filter_by(id=cat_id).first()
-            for article in Article.query.all():
+            for article in Article.query.filter(Article.verified>0):
                 if category in article.categories:
                     articles.append(article)
         w2b_context.update({"articles":articles, "category":cat_id})
     return render_template("index.html", cntxt=w2b_context)
 
-@app.route("/post/<int:id>")
+@app.route("/post/<int:id>", methods=['GET', 'POST'])
 def post(id=None):
-    w2b_context.clear()
-    if "user_id" in session:
-        csrf_token = csrf_text()
-        session["csrf_token"] = csrf_token
-        user = User.query.filter_by(id=session['user_id']).first()
-        w2b_context.update({"user":{"user_id":session['user_id'], "user":user}, 'csrf_token':csrf_token})
-    else:
-        w2b_context.update({"user":{"user_id":-1}}) 
     if id == None:
         return redirect(url_for('index'))
     article = Article.query.filter_by(id=id).first()
-    w2b_context.update({"article":article})
-    return render_template("post.html", cntxt=w2b_context)
+    if request.method == "POST" and  request.form['csrf_token'] == session["csrf_token"]:
+        if "user_id" in session:
+            user = User.query.filter_by(id=session['user_id']).first()
+            if request.form['form_name'] == "delete_article":
+                if user.usertype < 5 and article.user.id != user.id:
+                    return show_message(msg="You are not allowed to do this.")
+                for com in Comment.query.filter_by(article_id=id):
+                    db.session.delete(com)
+                db.session.delete(article)
+                db.session.commit()
+                return redirect(url_for('user'))
+            if request.form['form_name'] == "verify_article":
+                if user.usertype < 5:
+                    return show_message(msg="You are not allowed to do this.")
+                else:
+                    if article.verified < 0:
+                        article.verified = user.id 
+                        db.session.commit()
+                return redirect(url_for('user'))
+        else:
+            return show_message(msg="Login required!")
+    if request.method == "GET":
+        w2b_context.clear()
+        if "user_id" in session:
+            csrf_token = csrf_text()
+            session["csrf_token"] = csrf_token
+            user = User.query.filter_by(id=session['user_id']).first()
+            w2b_context.update({"user":{"user_id":session['user_id'], "user":user}, 'csrf_token':csrf_token})
+        else:
+            w2b_context.update({"user":{"user_id":-1}}) 
+        if article.verified < 0:
+            return show_message(msg="This article no verified")
+        w2b_context.update({"article":article})
+        return render_template("post.html", cntxt=w2b_context)
 
 @app.route('/comment/<int:p_id>', methods=['POST',])
 def cmnt(p_id: int):
