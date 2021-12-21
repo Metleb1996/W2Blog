@@ -176,8 +176,10 @@ def index(cat_id=None):
 def post(id=None):
     w2b_context.clear()
     if "user_id" in session:
+        csrf_token = csrf_text()
+        session["csrf_token"] = csrf_token
         user = User.query.filter_by(id=session['user_id']).first()
-        w2b_context.update({"user":{"user_id":session['user_id'], "user":user}})
+        w2b_context.update({"user":{"user_id":session['user_id'], "user":user}, 'csrf_token':csrf_token})
     else:
         w2b_context.update({"user":{"user_id":-1}}) 
     if id == None:
@@ -185,6 +187,25 @@ def post(id=None):
     article = Article.query.filter_by(id=id).first()
     w2b_context.update({"article":article})
     return render_template("post.html", cntxt=w2b_context)
+
+@app.route('/comment/<int:p_id>', methods=['POST',])
+def cmnt(p_id: int):
+    if request.method == "POST" and  request.form['csrf_token'] == session["csrf_token"]:
+        if "user_id" in session:
+            user = User.query.filter_by(id=session['user_id']).first()
+            article = Article.query.filter_by(id=p_id).first()
+            if article:
+                if "new_comment_body" in request.form and len(request.form['new_comment_body']) > 0:
+                    comment = Comment(body=request.form['new_comment_body'])
+                    article.comments.append(comment)
+                    user.comments.append(comment)
+                    db.session.add(comment)
+                    db.session.commit()
+                    return redirect(url_for('post', id=p_id))
+            else:
+                return show_message(msg="This article not exists!")
+        else:
+            return show_message(msg="Login required!")
 
 @app.route("/lr")
 def lr():
