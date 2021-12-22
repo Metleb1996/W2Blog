@@ -173,10 +173,10 @@ def index(cat_id=None):
         articles = []
         if Category.query.filter_by(id=cat_id).count() > 0:
             category = Category.query.filter_by(id=cat_id).first()
-            if (page-1)*10 < Article.query.filter(Article.verified>0).filter(category in Article.categories).count():
-                v_articles = Article.query.filter(Article.verified>0).filter(category in Article.categories).paginate(page, 10, False)
+            if (page-1)*10 < Article.query.filter(Article.verified>0).filter(Article.categories.contains(category)).count():
+                v_articles = Article.query.filter(Article.verified>0).filter(Article.categories.contains(category)).order_by(Article.id).paginate(page, 10, False)
             else:
-                v_articles = Article.query.filter(Article.verified>0).filter(category in Article.categories).paginate(1, 10, False)
+                v_articles = Article.query.filter(Article.verified>0).filter(Article.categories.contains(category)).order_by(Article.id).paginate(1, 10, False)
         w2b_context.update({"articles":v_articles, "category":cat_id})
     return render_template("index.html", cntxt=w2b_context)
 
