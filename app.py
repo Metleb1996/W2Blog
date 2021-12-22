@@ -12,12 +12,11 @@ from wtforms import Form, BooleanField, StringField, PasswordField, EmailField, 
 from flask_wtf.file import FileField, FileRequired
 
 M_EXTENTIONS = set(['jpg','png', 'jpeg', 'gif', 'bmp'])
-M_UPLOAD_FOLDER = "{}/static/media".format(os.getcwd())
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///vt.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-app.config['UPLOAD_FOLDER'] = M_UPLOAD_FOLDER
+app.config['UPLOAD_FOLDER'] = "{}/static/media".format(app.root_path)
 app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024 #uploaded file max size
 app.secret_key = b'HbfGMYwEOnP3oVEbbnPuoYxx1FHPdLSoNKku3qmKfWUjt6tsLdm3USo5k7JRWmXNiGIjpyXtm7DZ1DbAYAzn0g8LmerBW1DsaeSf'
 db = SQLAlchemy(app)
@@ -377,8 +376,8 @@ def edit(id=None):
                 db.session.add(new_article)
             db.session.commit()
             if file_name!=None:
-                if not os.path.exists(M_UPLOAD_FOLDER):
-                    os.mkdir(os.path.join("{}/static".format(os.getcwd()), "media"))
+                if not os.path.exists(app.config['UPLOAD_FOLDER']):
+                    os.mkdir(os.path.join(app.config['UPLOAD_FOLDER']))
                 image.save(os.path.join(app.config['UPLOAD_FOLDER'], file_name))
             session.pop('article_id', None)
             return redirect(url_for('index'))    
@@ -412,8 +411,8 @@ def user():
                             file_name = "{}-{}".format(datetime.datetime.strftime(datetime.datetime.utcnow(), "%s"),file_name)
                             user.image = file_name
                             db.session.commit()
-                            if not os.path.exists(M_UPLOAD_FOLDER):
-                                os.mkdir(os.path.join("{}/static".format(os.getcwd()), "media"))
+                            if not os.path.exists(app.config['UPLOAD_FOLDER']):
+                                os.mkdir(os.path.join(app.config['UPLOAD_FOLDER']))
                             image.save(os.path.join(app.config['UPLOAD_FOLDER'], file_name))
                         else:
                             return  show_message(msg="This file format is not supported.")
