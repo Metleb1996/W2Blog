@@ -155,6 +155,8 @@ def form_checker(form, rules:dict):
 @app.route("/category/<int:cat_id>")
 def index(cat_id=None):
     w2b_context.clear()
+    page = abs(request.args.get("p", 1, int))
+    print(type(page), page)
     if "user_id" in session:
         user = User.query.filter_by(id=session['user_id']).first()
         w2b_context.update({"user":{"user_id":session['user_id'], "user":user}})
@@ -162,15 +164,20 @@ def index(cat_id=None):
         w2b_context.update({"user":{"user_id":-1}}) 
     w2b_context.update({"categories":Category.query.all()})
     if cat_id == None :
-        w2b_context.update({"articles":Article.query.filter(Article.verified>0), "category":-1})
+        if (page-1)*10 < Article.query.filter(Article.verified>0).count():
+            v_articles = Article.query.filter(Article.verified>0).paginate(page, 10, False)
+        else:
+            v_articles = Article.query.filter(Article.verified>0).paginate(1, 10, False)
+        w2b_context.update({"articles":v_articles, "category":-1})
     else:
         articles = []
         if Category.query.filter_by(id=cat_id).count() > 0:
             category = Category.query.filter_by(id=cat_id).first()
-            for article in Article.query.filter(Article.verified>0):
-                if category in article.categories:
-                    articles.append(article)
-        w2b_context.update({"articles":articles, "category":cat_id})
+            if (page-1)*10 < Article.query.filter(Article.verified>0).filter(category in Article.categories).count():
+                v_articles = Article.query.filter(Article.verified>0).filter(category in Article.categories).paginate(page, 10, False)
+            else:
+                v_articles = Article.query.filter(Article.verified>0).filter(category in Article.categories).paginate(1, 10, False)
+        w2b_context.update({"articles":v_articles, "category":cat_id})
     return render_template("index.html", cntxt=w2b_context)
 
 @app.route("/post/<int:id>", methods=['GET', 'POST'])
