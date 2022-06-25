@@ -5,113 +5,22 @@ import re
 import random
 import os
 from werkzeug.utils import secure_filename
-from flask import Flask, render_template, redirect, url_for, session, request, abort
-from flask_bcrypt import Bcrypt
-from flask_sqlalchemy import SQLAlchemy
-from wtforms import Form, BooleanField, StringField, PasswordField, EmailField, SubmitField, TextAreaField, validators
-from flask_wtf.file import FileField, FileRequired
+from flask import render_template, redirect, url_for, session, request, abort
+
+from core.models.singletons import app, db, bcrypt
+from core.models.article import Article
+from core.models.category import Category
+from core.models.sociallink import SocialLink
+from core.models.user import User
+from core.models.comment import Comment
+from core.models.forms.registration import RegistrationForm
+from core.models.forms.login import LoginForm
+from core.models.forms.edit import EditForm
 
 M_EXTENTIONS = set(['jpg','png', 'jpeg', 'gif', 'bmp'])
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///vt.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-app.config['UPLOAD_FOLDER'] = "{}/static/media".format(app.root_path)
-app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024 #uploaded file max size
-app.secret_key = b'HbfGMYwEOnP3oVEbbnPuoYxx1FHPdLSoNKku3qmKfWUjt6tsLdm3USo5k7JRWmXNiGIjpyXtm7DZ1DbAYAzn0g8LmerBW1DsaeSf'
-db = SQLAlchemy(app)
-bcrypt = Bcrypt(app)
-
 w2b_context = {}
 
-article_categories = db.Table(
-    "article_categories",
-    db.Column("article_id", db.Integer, db.ForeignKey("article.id")),
-    db.Column("category_id", db.Integer, db.ForeignKey("category.id")),
-)
-
-class Article(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    verified = db.Column(db.Integer, default=-1) # approved by {admin.id}
-    title = db.Column(db.String(80), nullable=False)
-    subtitle = db.Column(db.String(80), nullable=False)
-    image = db.Column(db.String(180), nullable=False, default="default_article_image.png")
-    body = db.Column(db.Text, nullable=False)
-    pub_date = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    categories = db.relationship("Category", secondary=article_categories, back_populates="articles")
-    comments = db.relationship('Comment', backref='article')
-
-    def get_date(self):
-        return datetime.datetime.fromisoformat(str(self.pub_date)).strftime("%A %d. %b %Y")
-
-    def __repr__(self):
-        return '<Article %r>' % self.title
-
-class Category(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(25), unique=True, nullable=False)
-    articles = db.relationship("Article", secondary=article_categories, back_populates="categories")
-
-    def __repr__(self):
-        return '<Category %r>' % self.name
-
-class SocialLink(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    sname = db.Column(db.String(25), nullable=False)
-    slink = db.Column(db.String(150), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-
-    def __repr__(self):
-        return '<SocialLink %r>' % self.sname
-
-
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    usertype = db.Column(db.Integer, default=0) # 0, 1, 2, 3, 4, 5  (0-quest, 5-super_admin)
-    username = db.Column(db.String(30), unique=True, nullable=False)
-    fullname = db.Column(db.String(80), nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(1024), nullable=False)
-    image = db.Column(db.String(80), nullable=False, default="default_user_image.png")
-    about_me = db.Column(db.String(2048), default="About this user", nullable=False)
-    last_login = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
-    articles = db.relationship('Article', backref='user')
-    comments = db.relationship('Comment', backref='user')
-    sociallinks = db.relationship('SocialLink', backref='user')
-
-    def __repr__(self):
-        return '<User %r>' % self.username
-
-class Comment(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    body = db.Column(db.String(1024), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    article_id = db.Column(db.Integer, db.ForeignKey('article.id'))
-
-
-class RegistrationForm(Form):
-    fullname = StringField('Full Name', [validators.DataRequired(), validators.Length(min=5, max=35)], render_kw={"class":"form-control","maxlength":"35","minlength":"6"})
-    username = StringField('User Name', [validators.DataRequired(), validators.Length(min=4, max=25)], render_kw={"class":"form-control","maxlength":"25","minlength":"4"})
-    email = EmailField('Email address', [validators.DataRequired(), validators.Length(min=8, max=35), validators.Email(message=(u'That\'s not a valid email address.'))], render_kw={"class":"form-control","maxlength":"35","minlength":"8"})
-    password = PasswordField('Password', [validators.DataRequired(), validators.Length(min=10, max=35), validators.EqualTo('confirm', message='Passwords must match')], render_kw={"class":"form-control","maxlength":"35","minlength":"10"})
-    confirm = PasswordField('Repeat Password', [validators.DataRequired()], render_kw={"class":"form-control"})
-    iagree = BooleanField(" I have read and agree to the terms ", render_kw={"class":"form-check-input","checked":"checked","value":"1"})
-    submitbutton = SubmitField("Register")
-
-class LoginForm(Form):
-    email = EmailField('Email address', [validators.DataRequired(), validators.Length(min=8, max=35), validators.Email(message=(u'That\'s not a valid email address.'))], render_kw={"class":"form-control","maxlength":"35","minlength":"8"})
-    password = PasswordField('Password', [validators.DataRequired(), validators.Length(min=10, max=35)], render_kw={"class":"form-control","maxlength":"35","minlength":"10"})
-    rememberme = BooleanField(" Remember me ", render_kw={"class":"form-check-input","checked":"checked","value":"1"})
-    submitbutton = SubmitField("Login")
-
-
-class EditForm(Form): 
-    title = StringField("Title", [validators.DataRequired(), validators.Length(min=5, max=80)], render_kw={"class":"form-control","maxlength":"80","minlength":"5"})
-    subtitle = StringField("Subtitle", [validators.DataRequired(), validators.Length(min=5, max=80)], render_kw={"class":"form-control","maxlength":"80","minlength":"5"})
-    body = TextAreaField("Article Text", [validators.DataRequired(), validators.Length(min=3, max=536870912)], render_kw={"class":"form-control","maxlength":"536870912","minlength":"3", "rows":10})
-    image = FileField("Hero Image", validators=[FileRequired()], render_kw={"class":"form-control", "style":"opacity: 0.2;  z-index: -1;"})
-    submitbutton = SubmitField("Publish")
 
 def ext_cont(file_name):
    return '.' in file_name and \
