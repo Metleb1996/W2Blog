@@ -1,0 +1,1 @@
+M_EXTENTIONS = set(['jpg','png', 'jpeg', 'gif', 'bmp'])
