@@ -1,0 +1,1 @@
+DEFAULT_ARTICLE_IMAGE = "default_article_image.png"
