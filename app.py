@@ -1,8 +1,5 @@
 import datetime
 import time
-import string
-import re
-import random
 import os
 from werkzeug.utils import secure_filename
 from flask import render_template, redirect, url_for, session, request, abort
@@ -20,6 +17,9 @@ from core.models.forms.edit import EditForm
 from core.helpers.csrf_text import csrf_text
 from core.helpers.ext_cont import ext_cont
 from core.helpers.form_checker import form_checker
+
+
+from core.constants.default_article_image import DEFAULT_ARTICLE_IMAGE
 
 
 w2b_context = {}
@@ -80,6 +80,8 @@ def post(id=None):
                     return show_message(msg="You are not allowed to do this.")
                 for com in Comment.query.filter_by(article_id=id):
                     db.session.delete(com)
+                if article.image != DEFAULT_ARTICLE_IMAGE:
+                    os.remove(os.path.join(app.config['UPLOAD_FOLDER'], article.image))
                 db.session.delete(article)
                 db.session.commit()
                 return redirect(url_for('user'))
