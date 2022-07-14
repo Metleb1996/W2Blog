@@ -17,23 +17,13 @@ from core.models.forms.registration import RegistrationForm
 from core.models.forms.login import LoginForm
 from core.models.forms.edit import EditForm
 
-M_EXTENTIONS = set(['jpg','png', 'jpeg', 'gif', 'bmp'])
+from core.helpers.csrf_text import csrf_text
+from core.helpers.ext_cont import ext_cont
+from core.helpers.form_checker import form_checker
+
 
 w2b_context = {}
 
-
-def ext_cont(file_name):
-   return '.' in file_name and \
-   file_name.rsplit('.', 1)[1].lower() in M_EXTENTIONS
-
-def csrf_text(size=32, chars=string.ascii_uppercase + string.ascii_lowercase + string.digits):
-    return ''.join(random.choice(chars) for _ in range(size))
-
-def is_email(email):
-    regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
-    if re.fullmatch(regex, email):
-        return True
-    return False
 
 def show_message(msg:str):
     session.pop('article_id', None)
@@ -46,19 +36,7 @@ def show_message(msg:str):
     w2b_context.update({"message":msg}) 
     return render_template("message.html", cntxt=w2b_context)
 
-def form_checker(form, rules:dict):
-    keys = rules.keys()
-    for key in keys:
-        if not key in form:
-            return False, "{} required!".format(rules[key])
-        if len(form[key]) > rules[key]['max']:
-            return False, "{} is to long!".format(rules[key])
-        if len(form[key]) < rules[key]['min']:
-            return False, "{} is to short!".format(rules[key])
-        if rules[key]['type'] == "email":
-            if not is_email(form[key]):
-                return False, "{} not email!".format(form[key])
-    return True, None
+
 
 @app.route("/")
 @app.route("/category/<int:cat_id>")
